@@ -1,4 +1,4 @@
-# Llama Stack Modular UI
+# TrustyAI UI
 
 A modern web application with a modular architecture, featuring a React frontend and Go backend for frontend (BFF).
 
@@ -157,4 +157,4 @@ docker run -p 8080:8080 \
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
