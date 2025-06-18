@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { Dashboard } from '@app/Dashboard/Dashboard';
-import { Support } from '@app/Support/Support';
 import { GeneralSettings } from '@app/Settings/General/GeneralSettings';
-import { ProfileSettings } from '@app/Settings/Profile/ProfileSettings';
 import { NotFound } from '@app/NotFound/NotFound';
+import { LmEval } from './LmEval/LmEval';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -26,18 +24,11 @@ export type AppRouteConfig = IAppRoute | IAppRouteGroup;
 
 const routes: AppRouteConfig[] = [
   {
-    element: <Dashboard />,
+    element: <LmEval />,
     exact: true,
-    label: 'Dashboard',
+    label: 'Model evaluations',
     path: '/',
-    title: 'PatternFly Seed | Main Dashboard',
-  },
-  {
-    element: <Support />,
-    exact: true,
-    label: 'Support',
-    path: '/support',
-    title: 'PatternFly Seed | Support Page',
+    title: 'Model Evaluations Dashboard',
   },
   {
     label: 'Settings',
@@ -47,14 +38,7 @@ const routes: AppRouteConfig[] = [
         exact: true,
         label: 'General',
         path: '/settings/general',
-        title: 'PatternFly Seed | General Settings',
-      },
-      {
-        element: <ProfileSettings />,
-        exact: true,
-        label: 'Profile',
-        path: '/settings/profile',
-        title: 'PatternFly Seed | Profile Settings',
+        title: 'General Settings',
       },
     ],
   },
