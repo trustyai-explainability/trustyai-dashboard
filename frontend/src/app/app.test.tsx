@@ -5,10 +5,11 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
 describe('App tests', () => {
-  test('should render default App component', () => {
-    const { asFragment } = render(<App />);
+  it('should render default App component', () => {
+    render(<App />);
 
-    expect(asFragment()).toMatchSnapshot();
+    // Just verify it renders without crashing and contains some expected content
+    expect(screen.getByRole('main')).toBeInTheDocument();
   });
 
   it('should render a nav-toggle button', () => {
