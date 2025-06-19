@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { GeneralSettings } from '@app/Settings/General/GeneralSettings';
+import { Settings } from '@app/Settings/Settings';
 import { NotFound } from '@app/NotFound/NotFound';
 import { LmEval } from './LmEval/LmEval';
 
@@ -34,11 +34,11 @@ const routes: AppRouteConfig[] = [
     label: 'Settings',
     routes: [
       {
-        element: <GeneralSettings />,
+        element: <Settings />,
         exact: true,
-        label: 'General',
-        path: '/settings/general',
-        title: 'General Settings',
+        label: 'Settings',
+        path: '/settings',
+        title: 'Settings',
       },
     ],
   },
