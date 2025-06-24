@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { Settings } from '@app/Settings/Settings';
-import { NotFound } from '@app/NotFound/NotFound';
-import { LmEval } from './LmEval/LmEval';
+import { Settings } from '@app/pages/settings/Settings';
+import { NotFound } from '@app/components/NotFound/NotFound';
+import { LmEval } from '@app/pages/lmEval/LmEval';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
