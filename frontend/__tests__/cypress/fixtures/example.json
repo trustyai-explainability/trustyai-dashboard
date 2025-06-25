@@ -1,0 +1,17 @@
+{
+  "user": {
+    "username": "testuser",
+    "password": "testpassword",
+    "email": "test@example.com"
+  },
+  "apiResponse": {
+    "status": "success",
+    "data": {
+      "message": "Test data loaded successfully"
+    }
+  },
+  "testData": {
+    "title": "TrustyAI Dashboard",
+    "navigation": ["Dashboard", "Models", "Analytics", "Settings"]
+  }
+}
