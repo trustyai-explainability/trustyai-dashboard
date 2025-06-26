@@ -46,6 +46,7 @@ const routes: AppRouteConfig[] = [
 
 const flattenedRoutes: IAppRoute[] = routes.reduce(
   (flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])],
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   [] as IAppRoute[],
 );
 

@@ -54,7 +54,9 @@ expect.extend({
       return tryExpect(() => expect(actual.result.current).toBe(actual.getPreviousResult()));
     }
     return tryExpect(() =>
-      expect(actual.result.current).toStrictEqual(createComparativeValue(actual.getPreviousResult(), expected)),
+      expect(actual.result.current).toStrictEqual(
+        createComparativeValue(actual.getPreviousResult(), expected),
+      ),
     );
   },
 });

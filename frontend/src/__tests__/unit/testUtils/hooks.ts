@@ -111,11 +111,14 @@ export const testHook =
   ): Omit<RenderHookResultExt<Result, { $params: typeof initialParams }>, 'rerender'> & {
     rerender: (...params: typeof initialParams) => void;
   } => {
-    const renderResult = renderHook<Result, { $params: typeof initialParams }>(({ $params }) => hook(...$params), {
-      initialProps: {
-        $params: initialParams,
+    const renderResult = renderHook<Result, { $params: typeof initialParams }>(
+      ({ $params }) => hook(...$params),
+      {
+        initialProps: {
+          $params: initialParams,
+        },
       },
-    });
+    );
 
     return {
       ...renderResult,
@@ -139,12 +142,12 @@ export const standardUseFetchState = <D>(
   data: D,
   loaded = false,
   error?: Error,
-): [data: D, loaded: boolean, loadError: Error | undefined, refresh: () => Promise<D | undefined>] => [
-  data,
-  loaded,
-  error,
-  expect.any(Function),
-];
+): [
+  data: D,
+  loaded: boolean,
+  loadError: Error | undefined,
+  refresh: () => Promise<D | undefined>,
+] => [data, loaded, error, expect.any(Function)];
 
 // create a new asymmetric matcher that matches everything
 const everything = () => {
@@ -183,7 +186,12 @@ const createComparativeValueRecursive = <T>(
     }
     return undefined;
   }
-  if (source == null || typeof source === 'string' || typeof source === 'number' || typeof source === 'function') {
+  if (
+    source == null ||
+    typeof source === 'string' ||
+    typeof source === 'number' ||
+    typeof source === 'function'
+  ) {
     return source;
   }
   const obj: { [k: string]: unknown } = {};

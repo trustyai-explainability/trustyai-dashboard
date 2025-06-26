@@ -104,7 +104,9 @@ describe('hook test utils', () => {
   it('should not throw if waitForNextUpdate timeout is sufficient', async () => {
     const renderResult = renderHook(() => useSayHelloDelayed('', 20));
 
-    await expect(renderResult.waitForNextUpdate({ timeout: 500, interval: 10 })).resolves.not.toThrow();
+    await expect(
+      renderResult.waitForNextUpdate({ timeout: 500, interval: 10 }),
+    ).resolves.not.toThrow();
 
     expect(renderResult).hookToHaveUpdateCount(2);
   });
@@ -151,7 +153,9 @@ describe('hook test utils', () => {
 
   it('standardUseFetchState should return an array matching the state of useFetchState', () => {
     expect(['test', false, undefined, () => null]).toStrictEqual(standardUseFetchState('test'));
-    expect(['test', true, undefined, () => null]).toStrictEqual(standardUseFetchState('test', true));
+    expect(['test', true, undefined, () => null]).toStrictEqual(
+      standardUseFetchState('test', true),
+    );
     expect(['test', false, new Error('error'), () => null]).toStrictEqual(
       standardUseFetchState('test', false, new Error('error')),
     );
@@ -180,7 +184,9 @@ describe('hook test utils', () => {
       expect({ a: 1, b: 2, c: 3 }).toStrictEqual(
         createComparativeValue({ a: 1, b: 2, c: 4 }, { a: true, b: true, c: false }),
       );
-      expect({ a: 1, b: 2, c: 3 }).toStrictEqual(createComparativeValue({ a: 1, b: 2, c: 4 }, { a: true, b: true }));
+      expect({ a: 1, b: 2, c: 3 }).toStrictEqual(
+        createComparativeValue({ a: 1, b: 2, c: 4 }, { a: true, b: true }),
+      );
       expect({ a: 1, b: 2, c: 3 }).not.toStrictEqual(
         createComparativeValue({ a: 1, b: 4, c: 3 }, { a: true, b: true, c: true }),
       );
