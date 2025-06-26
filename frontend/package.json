@@ -28,6 +28,7 @@
     "bundle-profile:analyze": "npm run build:bundle-profile && webpack-bundle-analyzer ./stats.json",
     "clean": "rimraf dist",
     "cypress:server:dev": "webpack serve --color --progress --config webpack.dev.js --port 8080 --no-open",
+    "cypress:server": "cd ../bff && make run PORT=9001",
     "cypress:open:mock": "cypress open --config-file src/__tests__/cypress/cypress.config.js",
     "cypress:run": "cypress run -b chrome --config-file src/__tests__/cypress/cypress.config.js",
     "cypress:run:mock": "CY_MOCK=1 CY_WS_PORT=9002 npm run cypress:run -- ",
