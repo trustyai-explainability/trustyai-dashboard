@@ -3,12 +3,12 @@ import { defineConfig } from 'cypress';
 export default defineConfig({
   e2e: {
     baseUrl: 'http://localhost:8080',
-    supportFile: '__tests__/cypress/support/e2e.ts',
-    specPattern: '__tests__/cypress/tests/**/*.cy.{js,jsx,ts,tsx}',
-    fixturesFolder: '__tests__/cypress/fixtures',
-    screenshotsFolder: '__tests__/cypress/screenshots',
-    videosFolder: '__tests__/cypress/videos',
-    downloadsFolder: '__tests__/cypress/downloads',
+    supportFile: 'src/__tests__/cypress/support/e2e.ts',
+    specPattern: 'src/__tests__/cypress/tests/**/*.cy.{js,jsx,ts,tsx}',
+    fixturesFolder: 'src/__tests__/cypress/fixtures',
+    screenshotsFolder: 'src/__tests__/cypress/screenshots',
+    videosFolder: 'src/__tests__/cypress/videos',
+    downloadsFolder: 'src/__tests__/cypress/downloads',
 
     setupNodeEvents() {
       // implement node event listeners here
