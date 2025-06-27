@@ -1,9 +1,9 @@
 {
-  "name": "patternfly-seed",
+  "name": "model-evaluations",
   "version": "0.0.2",
-  "description": "An open source build scaffolding utility for web apps.",
-  "repository": "https://github.com/patternfly/patternfly-react-seed.git",
-  "homepage": "https://patternfly-react-seed.surge.sh",
+  "description": "An user interface for model evaluations.",
+  "repository": "https://github.com/trustyai-explainability/trustyai-dashboard.git",
+  "homepage": "https://github.com/trustyai-explainability/trustyai-dashboard",
   "license": "MIT",
   "private": true,
   "scripts": {
