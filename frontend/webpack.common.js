@@ -81,15 +81,15 @@ module.exports = (env) => {
             path.resolve(__dirname, 'node_modules/@patternfly/react-core/dist/styles/assets/images'),
             path.resolve(
               __dirname,
-              'node_modules/@patternfly/react-core/node_modules/@patternfly/react-styles/css/assets/images'
+              'node_modules/@patternfly/react-core/node_modules/@patternfly/react-styles/css/assets/images',
             ),
             path.resolve(
               __dirname,
-              'node_modules/@patternfly/react-table/node_modules/@patternfly/react-styles/css/assets/images'
+              'node_modules/@patternfly/react-table/node_modules/@patternfly/react-styles/css/assets/images',
             ),
             path.resolve(
               __dirname,
-              'node_modules/@patternfly/react-inline-edit-extension/node_modules/@patternfly/react-styles/css/assets/images'
+              'node_modules/@patternfly/react-inline-edit-extension/node_modules/@patternfly/react-styles/css/assets/images',
             ),
           ],
           type: 'asset/inline',
@@ -119,7 +119,7 @@ module.exports = (env) => {
         silent: true,
       }),
       new CopyPlugin({
-        patterns: [{ from: './src/favicon.png', to: 'images' }],
+        patterns: [{ from: './src/evaluation.svg', to: 'images' }],
       }),
     ],
     resolve: {
