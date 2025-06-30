@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # Go modules updates for root
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  # Go modules updates for BFF
+  - package-ecosystem: "gomod"
+    directory: "/bff/"
+    schedule:
+      interval: "weekly"
+  # GitHub Actions updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  # npm updates for frontend
+  - package-ecosystem: "npm"
+    directory: "/frontend/"
+    schedule:
+      interval: "weekly"
