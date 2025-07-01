@@ -32,7 +32,7 @@
     "cypress:open:mock": "cypress open --config-file src/__tests__/cypress/cypress.config.js",
     "cypress:run": "cypress run -b chrome --config-file src/__tests__/cypress/cypress.config.js",
     "cypress:run:mock": "CY_MOCK=1 CY_WS_PORT=9002 npm run cypress:run -- ",
-    "test:cypress-ci": "npx concurrently -P -k -s first \"npm run cypress:server:dev && npm run cypress:server\" \"npx wait-on tcp:127.0.0.1:9001 && npm run cypress:run:mock -- {@}\" -- "
+    "test:cypress-ci": "npx concurrently -P -k -s first \"npm run cypress:server:dev\" \"npx wait-on http://localhost:8080 && npm run cypress:run:mock\" -- "
   },
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",
