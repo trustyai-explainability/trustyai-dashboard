@@ -46,7 +46,7 @@ jobs:
         working-directory: ./frontend
 
       - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           directory: ./frontend/coverage
           fail_ci_if_error: false
