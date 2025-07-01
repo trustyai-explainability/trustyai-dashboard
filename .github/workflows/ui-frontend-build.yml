@@ -60,13 +60,8 @@ jobs:
         working-directory: ./frontend
 
       - name: Run Cypress e2e tests
-        uses: cypress-io/github-action@v6
-        with:
-          working-directory: ./frontend
-          start: npm start
-          wait-on: "http://localhost:8080"
-          wait-on-timeout: 120
-          browser: chrome
+        run: npm run test:cypress-ci
+        working-directory: ./frontend
 
       - name: Clean frontend
         run: npm run clean

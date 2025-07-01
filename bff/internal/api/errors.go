@@ -31,7 +31,7 @@ func (app *App) LogError(r *http.Request, err error) {
 	app.logger.Error(err.Error(), "method", method, "uri", uri)
 }
 
-func (app *App) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+func (app *App) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) { //nolint:unused
 	httpError := &integrations.HTTPError{
 		StatusCode: http.StatusBadRequest,
 		ErrorResponse: integrations.ErrorResponse{
@@ -42,7 +42,7 @@ func (app *App) badRequestResponse(w http.ResponseWriter, r *http.Request, err e
 	app.errorResponse(w, r, httpError)
 }
 
-func (app *App) forbiddenResponse(w http.ResponseWriter, r *http.Request, message string) {
+func (app *App) forbiddenResponse(w http.ResponseWriter, r *http.Request, message string) { //nolint:unused
 	httpError := &integrations.HTTPError{
 		StatusCode: http.StatusForbidden,
 		ErrorResponse: integrations.ErrorResponse{

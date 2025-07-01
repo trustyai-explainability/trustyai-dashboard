@@ -4,6 +4,7 @@ yarn-error.log
 yarn.lock
 stats.json
 coverage
+jest-coverage
 storybook-static
 .DS_Store
 .idea
