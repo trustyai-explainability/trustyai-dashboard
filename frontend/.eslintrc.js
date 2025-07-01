@@ -289,7 +289,7 @@ module.exports = {
       parser: 'espree',
       parserOptions: {
         ecmaVersion: 'latest',
-        sourceType: 'module',
+        sourceType: 'script',
       },
       env: {
         node: true,
