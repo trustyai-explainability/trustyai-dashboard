@@ -1,0 +1,51 @@
+name: UI - BFF - Build
+on:
+  push:
+    branches: [main]
+    paths:
+      - "bff/**"
+      - ".github/workflows/ui-bff-build.yml"
+      - "!**/*.md"
+      - "!**/*.txt"
+  pull_request:
+    branches: [main]
+    paths:
+      - "bff/**"
+      - ".github/workflows/ui-bff-build.yml"
+      - "!**/*.md"
+      - "!**/*.txt"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+
+      - name: Clean BFF
+        run: make clean
+        working-directory: ./bff
+
+      - name: Run golangci-lint
+        run: make lint
+        working-directory: ./bff
+
+      - name: Build BFF
+        run: make build
+        working-directory: ./bff
+
+      - name: Check for uncommitted changes
+        run: |
+          clean=$(git status --porcelain)
+          if [[ -z "$clean" ]]; then
+            echo "Empty git status --porcelain: $clean"
+          else
+            echo "Uncommitted file changes detected: $clean"
+            git diff
+            exit 1
+          fi
