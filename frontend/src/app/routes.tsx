@@ -34,7 +34,6 @@ const routes: AppRouteConfig[] = [
   {
     element: <LMEvalForm />,
     exact: true,
-    label: 'Model evaluations form',
     path: '/evaluate',
     title: 'Model Evaluations Form',
   },
