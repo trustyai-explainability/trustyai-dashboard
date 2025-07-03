@@ -6,6 +6,7 @@ import {
   FlexItem,
   Masthead,
   MastheadBrand,
+  MastheadContent,
   MastheadLogo,
   MastheadMain,
   MastheadToggle,
@@ -21,6 +22,7 @@ import {
 } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
 import ModelEvaluationsIcon from '~/images/icons/modelEvaluationsIcon';
+import HeaderTools from '~/app/HeaderTools';
 import { IAppRoute, IAppRouteGroup, routes } from '@app/routes';
 
 interface IAppLayout {
@@ -72,6 +74,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           </MastheadLogo>
         </MastheadBrand>
       </MastheadMain>
+      <MastheadContent>
+        <HeaderTools />
+      </MastheadContent>
     </Masthead>
   );
 
