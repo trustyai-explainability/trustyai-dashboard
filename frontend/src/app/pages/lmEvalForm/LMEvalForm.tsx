@@ -14,11 +14,13 @@ import {
   Icon,
   Popover,
   Truncate,
-  TextInput,
   FormSection,
 } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { Link } from 'react-router-dom';
+import K8sNameDescriptionField, {
+  useK8sNameDescriptionFieldData,
+} from '~/app/components/K8sNameDescriptionField/K8sNameDescriptionField';
 import { LmEvalFormData, LmModelArgument } from './utilities/types';
 import LmEvaluationTaskSection from './LMEvalTaskSection';
 import useLMGenericObjectState from './utilities/useLMGenericObjectState';
@@ -59,6 +61,14 @@ const LMEvalForm: React.FC = () => {
     },
   });
 
+  // K8s name description field data
+  const { data: lmEvalName, onDataChange: setLmEvalName } = useK8sNameDescriptionFieldData({
+    initialData: {
+      name: data.evaluationName,
+      k8sName: data.k8sName,
+    },
+  });
+
   const [openModelName, setOpenModelName] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   // Resource name state
@@ -73,12 +83,19 @@ const LMEvalForm: React.FC = () => {
 
   // Auto-generate resource name from evaluation name
   React.useEffect(() => {
-    if (data.evaluationName && !resourceName) {
-      const generated = generateResourceName(data.evaluationName);
+    if (lmEvalName.name && !resourceName) {
+      const generated = generateResourceName(lmEvalName.name);
       setResourceName(generated);
-      setData('k8sName', generated);
+      setData('k8sName', lmEvalName.k8sName.value);
+      setData('evaluationName', lmEvalName.name);
     }
-  }, [data.evaluationName, resourceName, setData]);
+  }, [lmEvalName.name, lmEvalName.k8sName.value, resourceName, setData]);
+
+  // Sync K8s name changes back to main form data
+  React.useEffect(() => {
+    setData('k8sName', lmEvalName.k8sName.value);
+    setData('evaluationName', lmEvalName.name);
+  }, [lmEvalName.k8sName.value, lmEvalName.name, setData]);
 
   // Mock model options - replace with your API call
   const modelOptions = [
@@ -103,9 +120,6 @@ const LMEvalForm: React.FC = () => {
 
   const selectedModelType = modelTypeOptions.find((option) => option.key === data.modelType);
   const selectedLabel = selectedModelType?.label || 'Select model type';
-
-  // Default namespace since we're not using k8s
-  const namespace = 'default';
 
   return (
     <ApplicationsPage
@@ -170,8 +184,7 @@ const LMEvalForm: React.FC = () => {
               </SelectList>
             </Select>
           </FormGroup>
-
-          <FormGroup
+          {/* <FormGroup
             isRequired
             data-testid="evaluation-name-form-group"
             label="Evaluation run name"
@@ -195,6 +208,32 @@ const LMEvalForm: React.FC = () => {
               onChange={(_event, value) => setData('evaluationName', value)}
               placeholder="Enter evaluation name"
               aria-label="Evaluation run name"
+            />
+          </FormGroup> */}
+
+          <FormGroup
+            isRequired
+            data-testid="evaluation-name-form-group"
+            labelHelp={
+              <Popover bodyContent={<></>}>
+                <Button
+                  icon={
+                    <Icon isInline>
+                      <OutlinedQuestionCircleIcon />
+                    </Icon>
+                  }
+                  variant="plain"
+                  isInline
+                />
+              </Popover>
+            }
+          >
+            <K8sNameDescriptionField
+              data={lmEvalName}
+              onDataChange={setLmEvalName}
+              dataTestId="lm-eval"
+              hideDescription
+              nameLabel="Evaluation run name"
             />
           </FormGroup>
           <LmEvaluationTaskSection
@@ -257,7 +296,7 @@ const LMEvalForm: React.FC = () => {
             setModelArgument={(modelArgument: LmModelArgument) => setData('model', modelArgument)}
           />
           <FormSection>
-            <LMEvalFormFooter data={data} namespace={namespace} />
+            <LMEvalFormFooter data={data} k8sNameData={lmEvalName} />
           </FormSection>
         </Form>
       </PageSection>

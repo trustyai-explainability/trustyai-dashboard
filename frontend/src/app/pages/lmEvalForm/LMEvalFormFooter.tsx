@@ -8,18 +8,19 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 import { useNavigate } from 'react-router-dom';
+import { K8sNameDescriptionFieldData } from '~/app/components/K8sNameDescriptionField/types';
 import { LmEvalFormData } from '~/app/pages/lmEvalForm/utilities/types';
 import { isFilledLmEvalFormData } from '~/app/pages/lmEvalForm/utilities/formUtils';
 
 type LMEvalFormFooterProps = {
   data: LmEvalFormData;
-  namespace: string;
+  k8sNameData: K8sNameDescriptionFieldData;
 };
 
-const LMEvalFormFooter: React.FC<LMEvalFormFooterProps> = ({ data, namespace }) => {
+const LMEvalFormFooter: React.FC<LMEvalFormFooterProps> = ({ data, k8sNameData }) => {
   const [error, setError] = React.useState<Error | null>(null);
   const [isSubmitting, setSubmitting] = React.useState(false);
-  const canSubmit = isFilledLmEvalFormData(data);
+  const canSubmit = isFilledLmEvalFormData(data, k8sNameData);
   const navigate = useNavigate();
 
   const onCreatelmEval = async () => {
