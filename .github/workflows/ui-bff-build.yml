@@ -1,4 +1,4 @@
-name: BFF Build
+name: UI - BFF Build
 on:
   push:
     branches: [main]

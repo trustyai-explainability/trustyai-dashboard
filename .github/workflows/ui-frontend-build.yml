@@ -1,4 +1,4 @@
-name: Frontend Test and Build
+name: UI - Frontend Test and Build
 on:
   push:
     branches: [main]
