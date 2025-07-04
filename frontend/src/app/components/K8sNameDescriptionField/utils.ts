@@ -1,5 +1,6 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import * as _ from 'lodash-es';
-import { K8sResourceCommon } from '@openshift/dynamic-plugin-sdk-utils';
+import { K8sResourceCommon } from '@openshift-console/dynamic-plugin-sdk';
 import {
   getDescriptionFromK8sResource,
   getDisplayNameFromK8sResource,
@@ -69,7 +70,7 @@ export const setupDefaults = ({
   } else if (isK8sDSGResource(initialData)) {
     initialName = getDisplayNameFromK8sResource(initialData);
     initialDescription = getDescriptionFromK8sResource(initialData);
-    initialK8sNameValue = initialData.metadata.name;
+    initialK8sNameValue = initialData.metadata?.name || '';
   }
 
   if (limitNameResourceType != null) {
