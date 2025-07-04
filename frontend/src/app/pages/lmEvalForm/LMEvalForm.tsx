@@ -35,7 +35,7 @@ import LMEvalSecuritySection from './LMEvalSecuritySection';
 import LMEvalModelArgumentSection from './LMEvalModelArgumentSection';
 import LMEvalFormFooter from './LMEvalFormFooter';
 
-// Generate resource name from display name
+// Generate resource name
 const generateResourceName = (displayName: string) =>
   displayName
     .toLowerCase()
