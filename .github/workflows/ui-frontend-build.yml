@@ -1,4 +1,4 @@
-name: UI - Frontend - Test and Build
+name: Frontend Test and Build
 on:
   push:
     branches: [main]
@@ -25,7 +25,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "20" # Ensure your local dev Node.js version matches this exactly
           cache: "npm"
           cache-dependency-path: "./frontend/package-lock.json"
 
@@ -50,10 +50,6 @@ jobs:
         with:
           directory: ./frontend/coverage
           fail_ci_if_error: false
-
-      - name: Install Cypress and wait-on for e2e testing
-        run: npm install cypress wait-on eslint-plugin-cypress --save-dev
-        working-directory: ./frontend
 
       - name: Build frontend for e2e tests
         run: npm run build

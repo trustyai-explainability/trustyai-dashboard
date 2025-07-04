@@ -4,12 +4,15 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { AppLayout } from '@app/AppLayout/AppLayout';
 import { AppRoutes } from '@app/routes';
 import '@app/app.css';
+import { ThemeProvider } from './ThemeContext';
 
 const App: React.FunctionComponent = () => (
   <Router>
-    <AppLayout>
-      <AppRoutes />
-    </AppLayout>
+    <ThemeProvider>
+      <AppLayout>
+        <AppRoutes />
+      </AppLayout>
+    </ThemeProvider>
   </Router>
 );
 
