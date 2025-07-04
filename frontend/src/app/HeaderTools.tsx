@@ -23,7 +23,7 @@ const HeaderTools: React.FC = () => {
   }, [theme]);
 
   return (
-    <Toolbar isFullHeight>
+    <Toolbar isFullHeight data-testid="header-tools">
       <ToolbarContent>
         <ToolbarGroup variant="action-group-plain" align={{ default: 'alignEnd' }}>
           <ToolbarItem>

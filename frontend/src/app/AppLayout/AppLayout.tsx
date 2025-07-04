@@ -61,6 +61,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
                   <ModelEvaluationsIcon
                     style={{
                       width: 32,
+                      borderRadius: 20,
                       height: 32,
                       backgroundColor: 'var(--pf-t--color--purple--10)',
                     }}

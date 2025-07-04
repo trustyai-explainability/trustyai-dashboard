@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { useBrowserStorage } from './utils/useBrowserStorage';
 
 type ThemeContextProps = {
-  theme: string;
-  setTheme: (themeName: string) => void;
+  theme: 'light' | 'dark';
+  setTheme: (themeName: 'light' | 'dark') => void;
 };
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -14,7 +15,7 @@ type ThemeProviderProps = {
   children: React.ReactNode;
 };
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setTheme] = React.useState('light');
+  const [theme, setTheme] = useBrowserStorage<ThemeContextProps['theme']>('lmeval.theme', 'dark');
 
   const contextValue = React.useMemo(() => ({ theme, setTheme }), [theme, setTheme]);
 
