@@ -1,9 +1,9 @@
+import { lmEvalPage } from '~/__tests__/cypress/pages/lmEvalPage';
 import {
   checkAppLoaded,
   visitLmEval,
   waitForPageLoad,
 } from '~/__tests__/cypress/support/commands/common';
-import { lmEvalPage } from '~/__tests__/cypress/pages/lmEvalPage';
 
 describe('LM Evaluation Tests', () => {
   beforeEach(() => {
