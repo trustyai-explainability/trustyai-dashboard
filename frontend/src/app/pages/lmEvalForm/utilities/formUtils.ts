@@ -30,3 +30,11 @@ export const convertModelArgs = (modelArgs: LmModelArgument): { name: string; va
   { name: 'tokenized_requests', value: modelArgs.tokenizedRequest },
   { name: 'tokenizer', value: modelArgs.tokenizer },
 ];
+
+export const generateResourceName = (displayName: string): string =>
+  displayName
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 253);

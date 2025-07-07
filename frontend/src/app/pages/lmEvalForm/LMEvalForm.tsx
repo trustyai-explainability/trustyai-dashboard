@@ -34,15 +34,8 @@ import {
 import LMEvalSecuritySection from './LMEvalSecuritySection';
 import LMEvalModelArgumentSection from './LMEvalModelArgumentSection';
 import LMEvalFormFooter from './LMEvalFormFooter';
-
-// Generate resource name
-const generateResourceName = (displayName: string) =>
-  displayName
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .substring(0, 253);
+import { generateResourceName } from './utilities/formUtils';
+import { modelOptions } from './mockApi/modelOptions';
 
 const LMEvalForm: React.FC = () => {
   // Form state
@@ -97,24 +90,6 @@ const LMEvalForm: React.FC = () => {
     setData('k8sName', lmEvalName.k8sName.value);
     setData('evaluationName', lmEvalName.name);
   }, [lmEvalName.k8sName.value, lmEvalName.name, setData]);
-
-  // Mock model options - replace with your API call
-  const modelOptions = [
-    {
-      value: 'model1',
-      label: 'Model 1',
-      displayName: 'Model 1',
-      namespace: 'default',
-      service: 'http://localhost:8000', // Mock service URL
-    },
-    {
-      value: 'model2',
-      label: 'Model 2',
-      displayName: 'Model 2',
-      namespace: 'default',
-      service: 'http://localhost:8001', // Mock service URL
-    },
-  ];
 
   const selectedModel = modelOptions.find((model) => model.value === data.deployedModelName);
   const selectedModelLabel = selectedModel?.label || 'Select a model';
@@ -185,33 +160,6 @@ const LMEvalForm: React.FC = () => {
               </SelectList>
             </Select>
           </FormGroup>
-          {/* <FormGroup
-            isRequired
-            data-testid="evaluation-name-form-group"
-            label="Evaluation run name"
-            labelHelp={
-              <Popover bodyContent={<>Provide a name for your evaluation run</>}>
-                <Button
-                  icon={
-                    <Icon isInline>
-                      <OutlinedQuestionCircleIcon />
-                    </Icon>
-                  }
-                  variant="plain"
-                  isInline
-                />
-              </Popover>
-            }
-          >
-            <TextInput
-              type="text"
-              value={data.evaluationName}
-              onChange={(_event, value) => setData('evaluationName', value)}
-              placeholder="Enter evaluation name"
-              aria-label="Evaluation run name"
-            />
-          </FormGroup> */}
-
           <FormGroup
             isRequired
             data-testid="evaluation-name-form-group"

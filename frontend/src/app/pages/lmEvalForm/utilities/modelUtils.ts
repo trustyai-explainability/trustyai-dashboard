@@ -1,4 +1,3 @@
-// import { InferenceServiceKind } from '#~/k8sTypes';
 import { LmModelArgument } from './types';
 
 export type ModelOption = {
