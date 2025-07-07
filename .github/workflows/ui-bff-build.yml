@@ -18,6 +18,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # BFF Steps
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
