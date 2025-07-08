@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as _ from 'lodash-es';
-import { K8sResourceCommon } from '@openshift-console/dynamic-plugin-sdk';
+import { K8sResourceCommon } from 'mod-arch-shared/dist/types/common';
 import {
   getDescriptionFromK8sResource,
   getDisplayNameFromK8sResource,

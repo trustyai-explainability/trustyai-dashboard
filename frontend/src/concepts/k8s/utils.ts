@@ -1,4 +1,4 @@
-import { K8sResourceCommon } from '@openshift-console/dynamic-plugin-sdk';
+import { K8sResourceCommon } from 'mod-arch-shared/dist/types/common';
 import { genRandomChars } from '~/app/utils/string';
 
 /**
