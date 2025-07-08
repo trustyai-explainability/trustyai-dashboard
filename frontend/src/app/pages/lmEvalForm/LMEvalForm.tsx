@@ -22,6 +22,7 @@ import { Link } from 'react-router-dom';
 import K8sNameDescriptionField, {
   useK8sNameDescriptionFieldData,
 } from '~/app/components/K8sNameDescriptionField/K8sNameDescriptionField';
+import { modelOptions } from '~/app/mockApi/modelOptions';
 import { LmEvalFormData, LmModelArgument } from './utilities/types';
 import LmEvaluationTaskSection from './LMEvalTaskSection';
 import useLMGenericObjectState from './utilities/useLMGenericObjectState';
@@ -35,7 +36,6 @@ import LMEvalSecuritySection from './LMEvalSecuritySection';
 import LMEvalModelArgumentSection from './LMEvalModelArgumentSection';
 import LMEvalFormFooter from './LMEvalFormFooter';
 import { generateResourceName } from './utilities/formUtils';
-import { modelOptions } from './mockApi/modelOptions';
 
 const LMEvalForm: React.FC = () => {
   // Form state
