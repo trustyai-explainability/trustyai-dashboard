@@ -5,6 +5,7 @@ import { AppLayout } from '@app/AppLayout/AppLayout';
 import { AppRoutes } from '@app/routes';
 import '@app/app.css';
 import { ThemeProvider } from './ThemeContext';
+// eslint-disable-next-line import/no-extraneous-dependencies
 
 const App: React.FunctionComponent = () => (
   <Router>
