@@ -9,16 +9,16 @@ import { parseEvaluationResults } from './utils';
 import useLMEvalResult from './useLMEvalResult';
 
 const LMEvalResult: React.FC = () => {
-  const { evaluationName, namespace } = useParams<{ evaluationName: string; namespace: string }>();
-  const lmEvalResult = useLMEvalResult(evaluationName, namespace);
+  const { evaluationName } = useParams<{ evaluationName: string }>();
+  const lmEvalResult = useLMEvalResult(evaluationName);
 
   // Get the evaluation from the hook result
   const evaluation = lmEvalResult.data;
 
   // Parse results only when evaluation or results change
   const results = React.useMemo(
-    () => (evaluation?.status.results ? parseEvaluationResults(evaluation.status.results) : []),
-    [evaluation?.status.results],
+    () => (evaluation?.status?.results ? parseEvaluationResults(evaluation.status.results) : []),
+    [evaluation?.status?.results],
   );
 
   // Common breadcrumb component
@@ -33,7 +33,7 @@ const LMEvalResult: React.FC = () => {
   );
 
   const handleDownload = React.useCallback(() => {
-    if (evaluation?.status.results) {
+    if (evaluation?.status?.results) {
       try {
         // Parse the results string to get the actual results object
         const resultsObject = JSON.parse(evaluation.status.results);
@@ -53,7 +53,7 @@ const LMEvalResult: React.FC = () => {
       return `Evaluation "${evaluationName || 'Unknown'}" not found`;
     }
     if (evaluation && results.length === 0) {
-      return evaluation.status.results
+      return evaluation.status?.results
         ? 'Unable to parse evaluation results'
         : 'Evaluation results not yet available';
     }
