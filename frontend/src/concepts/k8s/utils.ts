@@ -210,3 +210,41 @@ export const kindApiVersion = (model: K8sModel): string => {
 
   return model.apiVersion;
 };
+
+export type LMEvalKind = K8sResourceCommon & {
+  metadata: {
+    annotations?: Partial<{
+      'opendatahub.io/display-name': string;
+    }>;
+    name: string;
+    namespace: string;
+  };
+  spec: {
+    allowCodeExecution?: boolean;
+    allowOnline?: boolean;
+    batchSize?: string;
+    logSamples?: boolean;
+    model: string;
+    modelArgs?: { name: string; value: string }[];
+    timeout?: number;
+    taskList: {
+      taskNames: string[];
+    };
+  };
+  status?: {
+    completeTime?: string;
+    lastScheduleTime?: string;
+    message?: string;
+    podName?: string;
+    reason?: string;
+    results?: string;
+    state?: string;
+    progressBars?: {
+      count: string;
+      elapsedTime: string;
+      message: string;
+      percent: string;
+      remainingTimeEstimate: string;
+    }[];
+  };
+};
