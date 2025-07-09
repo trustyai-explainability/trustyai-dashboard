@@ -1,5 +1,5 @@
+import * as stringUtils from 'mod-arch-shared/dist/utilities/string';
 import { mockProjectK8sResource } from '~/__mocks__';
-import * as stringUtils from '~/app/utils/string';
 import {
   getDescriptionFromK8sResource,
   getDisplayNameFromK8sResource,
