@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { Settings } from '@app/pages/settings/Settings';
 import { NotFound } from '@app/components/NotFound/NotFound';
 import { LmEval } from '@app/pages/lmEval/LmEval';
+import LMEvalForm from './pages/lmEvalForm/LMEvalForm';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -29,6 +30,12 @@ const routes: AppRouteConfig[] = [
     label: 'Model evaluations',
     path: '/',
     title: 'Model Evaluations Dashboard',
+  },
+  {
+    element: <LMEvalForm />,
+    exact: true,
+    path: '/evaluate',
+    title: 'Model Evaluations Form',
   },
   {
     label: 'Settings',

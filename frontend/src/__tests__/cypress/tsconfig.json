@@ -1,8 +1,24 @@
 {
   "extends": "../../../tsconfig.json",
-  "include": ["../../**/*.ts"],
-  "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "types": ["node", "cypress"]
-  }
+    "target": "es2021",
+    "lib": ["es2021", "dom"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["cypress", "node"],
+    "baseUrl": "../../../../",
+    "paths": {
+      "~/*": ["frontend/src/*"],
+      "@app/*": ["frontend/src/app/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "exclude": ["node_modules", "dist"]
 }
