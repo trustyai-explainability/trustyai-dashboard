@@ -21,15 +21,11 @@ const LMEvalResult: React.FC = () => {
     [evaluation?.status?.results],
   );
 
-  // Common breadcrumb component
-  const breadcrumb = React.useMemo(
-    () => (
-      <Breadcrumb>
-        <BreadcrumbItem render={() => <Link to="/modelEvaluations">Model evaluation runs</Link>} />
-        <BreadcrumbItem isActive>{evaluation?.metadata.name || evaluationName}</BreadcrumbItem>
-      </Breadcrumb>
-    ),
-    [evaluation?.metadata.name, evaluationName],
+  const breadcrumb = (
+    <Breadcrumb>
+      <BreadcrumbItem render={() => <Link to="/">Model evaluations runs</Link>} />
+      <BreadcrumbItem isActive>{evaluation?.metadata.name || evaluationName}</BreadcrumbItem>
+    </Breadcrumb>
   );
 
   const handleDownload = React.useCallback(() => {

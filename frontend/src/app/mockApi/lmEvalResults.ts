@@ -23,7 +23,6 @@ export const mockLMEvalResults: LMEvalKind[] = [
       modelArgs: [
         { name: 'temperature', value: '0.7' },
         { name: 'max_tokens', value: '512' },
-        { name: 'top_p', value: '0.9' },
       ],
       timeout: 3600,
       taskList: {
@@ -62,15 +61,6 @@ export const mockLMEvalResults: LMEvalKind[] = [
           },
         },
       }),
-      progressBars: [
-        {
-          count: '100/100',
-          elapsedTime: '01:30:00',
-          message: 'Evaluation completed',
-          percent: '100%',
-          remainingTimeEstimate: '00:00:00',
-        },
-      ],
     },
   },
   {
@@ -80,7 +70,7 @@ export const mockLMEvalResults: LMEvalKind[] = [
       name: 'mistral-eval-benchmark',
       namespace: 'ml-workspace',
       annotations: {
-        'opendatahub.io/display-name': 'Mistral 7B Benchmark Evaluation',
+        'opendatahub.io/display-name': 'Mistral 7B Benchmark',
       },
       resourceVersion: '2',
       uid: 'def456-ghi789-jkl012',
@@ -90,20 +80,14 @@ export const mockLMEvalResults: LMEvalKind[] = [
       allowCodeExecution: true,
       allowOnline: false,
       batchSize: '16',
-      logSamples: false,
       model: 'mistral-7b-instruct',
-      modelArgs: [
-        { name: 'temperature', value: '0.1' },
-        { name: 'max_tokens', value: '256' },
-        { name: 'top_p', value: '0.95' },
-      ],
+      modelArgs: [{ name: 'temperature', value: '0.1' }],
       timeout: 7200,
       taskList: {
-        taskNames: ['mmlu', 'gsm8k', 'humaneval'],
+        taskNames: ['mmlu', 'gsm8k'],
       },
     },
     status: {
-      completeTime: undefined,
       lastScheduleTime: '2024-01-16T14:00:00Z',
       message: 'Evaluation in progress...',
       podName: 'mistral-eval-benchmark-pod-abc123',
@@ -116,11 +100,6 @@ export const mockLMEvalResults: LMEvalKind[] = [
             'acc,none': 0.673,
             'acc_stderr,none': 0.015,
           },
-          gsm8k: {
-            alias: 'gsm8k',
-            'acc,none': 0.451,
-            'acc_stderr,none': 0.014,
-          },
         },
       }),
       progressBars: [
@@ -130,53 +109,6 @@ export const mockLMEvalResults: LMEvalKind[] = [
           message: 'Processing MMLU tasks',
           percent: '47%',
           remainingTimeEstimate: '00:52:30',
-        },
-      ],
-    },
-  },
-  {
-    apiVersion: 'trustyai.opendatahub.io/v1alpha1',
-    kind: 'LMEval',
-    metadata: {
-      name: 'gpt-eval-failed',
-      namespace: 'default',
-      annotations: {
-        'opendatahub.io/display-name': 'GPT Model Evaluation (Failed)',
-      },
-      resourceVersion: '3',
-      uid: 'ghi789-jkl012-mno345',
-      creationTimestamp: '2024-01-17T09:00:00Z',
-    },
-    spec: {
-      allowCodeExecution: false,
-      allowOnline: true,
-      batchSize: '4',
-      logSamples: true,
-      model: 'gpt-3.5-turbo',
-      modelArgs: [
-        { name: 'temperature', value: '0.0' },
-        { name: 'max_tokens', value: '1024' },
-      ],
-      timeout: 1800,
-      taskList: {
-        taskNames: ['winogrande', 'piqa'],
-      },
-    },
-    status: {
-      completeTime: '2024-01-17T09:45:00Z',
-      lastScheduleTime: '2024-01-17T09:00:00Z',
-      message: 'Evaluation failed: Model endpoint unreachable',
-      podName: 'gpt-eval-failed-pod-def456',
-      reason: 'Failed',
-      state: 'Failed',
-      results: undefined,
-      progressBars: [
-        {
-          count: '0/100',
-          elapsedTime: '00:45:00',
-          message: 'Connection timeout',
-          percent: '0%',
-          remainingTimeEstimate: 'N/A',
         },
       ],
     },
