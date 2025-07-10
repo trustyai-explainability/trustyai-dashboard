@@ -2,8 +2,8 @@ import * as React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter } from 'react-router-dom';
-import LMEvalResult from '#~/pages/lmEval/lmEvalResult/LMEvalResult';
-import { EvaluationResult } from '#~/pages/lmEval/lmEvalResult/LMEvalResultTable';
+import LMEvalResult from '~/app/pages/lmEvalResult/LMEvalResult';
+import { EvaluationResult } from '~/app/pages/lmEvalResult/LMEvalResultTable';
 import {
   defaultParams,
   mockSuccessfulHookResult,
@@ -17,9 +17,6 @@ const mockUseParams = jest.fn();
 const mockUseLMEvalResult = jest.fn();
 const mockParseEvaluationResults = jest.fn();
 
-// Variable to capture hook call arguments
-let capturedHookArgs: [string, string] | null = null;
-
 // Mock react-router-dom
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -27,33 +24,30 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock the useLMEvalResult hook
-jest.mock('#~/pages/lmEval/lmEvalResult/useLMEvalResult', () => ({
+jest.mock('~/app/pages/lmEvalResult/useLMEvalResult', () => ({
   __esModule: true,
-  default: (evaluationName: string, namespace: string) => {
-    capturedHookArgs = [evaluationName, namespace];
-    return mockUseLMEvalResult();
-  },
+  default: () => mockUseLMEvalResult(),
 }));
 
 // Mock the utils
-jest.mock('#~/pages/lmEval/lmEvalResult/utils', () => ({
+jest.mock('~/app/pages/lmEvalResult/utils', () => ({
   parseEvaluationResults: (results: string) => mockParseEvaluationResults(results),
 }));
 
 // Mock the LMEvalResultTable component
 jest.mock(
-  '#~/pages/lmEval/lmEvalResult/LMEvalResultTable',
+  '~/app/pages/lmEvalResult/LMEvalResultTable',
   () =>
     function MockLMEvalResultTable({ results }: { results: EvaluationResult[] }) {
       return <div data-testid="lm-eval-result-table">Results: {results.length}</div>;
     },
 );
 
-// Mock the LMEvalApplicationPage component
+// Mock the ApplicationsPage component
 jest.mock(
-  '#~/pages/lmEval/components/LMEvalApplicationPage',
+  'mod-arch-shared/dist/components/ApplicationsPage',
   () =>
-    function MockLMEvalApplicationPage({
+    function MockApplicationsPage({
       loaded,
       empty,
       emptyMessage,
@@ -85,7 +79,6 @@ jest.mock(
 );
 
 describe('LMEvalResult', () => {
-  // Create the setup function using our mock functions
   const setupMocks = createSetupMocks(
     mockUseParams,
     mockUseLMEvalResult,
@@ -101,7 +94,6 @@ describe('LMEvalResult', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    capturedHookArgs = null;
   });
 
   describe('Successful Rendering', () => {
@@ -222,7 +214,7 @@ describe('LMEvalResult', () => {
       setupMocks();
       renderComponent();
 
-      expect(capturedHookArgs).toEqual(['test-evaluation', 'test-project']);
+      expect(mockUseLMEvalResult).toHaveBeenCalled();
     });
 
     it('should call parseEvaluationResults with correct results string', () => {

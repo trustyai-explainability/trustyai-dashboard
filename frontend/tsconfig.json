@@ -23,6 +23,7 @@
       "@app/*": ["app/*"],
       "@assets/*": ["../node_modules/@patternfly/react-core/dist/styles/assets/*"]
     },
+    "types": ["jest"],
     "importHelpers": true,
     "skipLibCheck": true,
     "noErrorTruncation": true,

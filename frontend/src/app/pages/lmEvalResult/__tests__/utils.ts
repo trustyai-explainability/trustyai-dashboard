@@ -1,4 +1,4 @@
-import { mockLMEvalContextValue, mockParsedResults } from '#~/__mocks__/mockLMEvaluationResultData';
+import { mockLMEvalContextValue, mockParsedResults } from '~/__mocks__/lmEvaluationResultsData';
 
 // Test constants
 export const defaultParams = {

@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
-import { parseEvaluationResults } from '#~/pages/lmEval/lmEvalResult/utils';
-import { EvaluationResult } from '#~/pages/lmEval/lmEvalResult/LMEvalResultTable';
+import { EvaluationResult } from '~/app/pages/lmEvalResult/LMEvalResultTable';
+import { parseEvaluationResults } from '~/app/pages/lmEvalResult/utils';
 
 describe('parseEvaluationResults', () => {
   const stringifyResults = (data: unknown): string => JSON.stringify(data);

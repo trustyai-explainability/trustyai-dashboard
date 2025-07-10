@@ -45,6 +45,7 @@ export const mockLMEvalResults: LMEvalKind[] = [
             'acc_norm,none': 0.851,
             'acc_norm_stderr,none': 0.003,
           },
+          // eslint-disable-next-line camelcase
           arc_easy: {
             alias: 'arc_easy',
             'acc,none': 0.823,
