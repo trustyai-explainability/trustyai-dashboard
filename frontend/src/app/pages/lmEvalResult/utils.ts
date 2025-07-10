@@ -1,4 +1,9 @@
-import { EvaluationResult } from './LMEvalResultTable';
+export type EvaluationResult = {
+  task: string;
+  metric: string;
+  value: number;
+  error?: number;
+};
 
 export type SearchColumn = 'task' | 'metric' | 'value' | 'error';
 

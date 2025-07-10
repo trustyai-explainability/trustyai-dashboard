@@ -1,16 +1,23 @@
 import * as React from 'react';
-import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { MemoryRouter } from 'react-router-dom';
-import LMEvalResult from '~/app/pages/lmEvalResult/LMEvalResult';
-import { EvaluationResult } from '~/app/pages/lmEvalResult/LMEvalResultTable';
+import { EvaluationResult } from '~/app/pages/lmEvalResult/utils';
 import {
   defaultParams,
   mockSuccessfulHookResult,
   mockEmptyHookResult,
-  createMockEvaluationData,
   createSetupMocks,
 } from './utils';
+import {
+  expectLoadedState,
+  expectEmptyState,
+  expectTitle,
+  expectEmptyMessage,
+  expectElementPresence,
+  renderLMEvalResultComponent,
+  createTestScenarios,
+  errorTestCases,
+  downloadTestCases,
+} from './LMEvalResultHelpers';
 
 // Create mock functions that can be configured per test
 const mockUseParams = jest.fn();
@@ -79,18 +86,19 @@ jest.mock(
 );
 
 describe('LMEvalResult', () => {
+  // Setup mocks and test scenarios
   const setupMocks = createSetupMocks(
     mockUseParams,
     mockUseLMEvalResult,
     mockParseEvaluationResults,
   );
 
-  const renderComponent = (): ReturnType<typeof render> =>
-    render(
-      <MemoryRouter>
-        <LMEvalResult />
-      </MemoryRouter>,
-    );
+  const {
+    renderWithDefaultSetup,
+    renderWithEmptyEvaluation,
+    renderWithNoResults,
+    renderWithParseError,
+  } = createTestScenarios(setupMocks);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -98,128 +106,96 @@ describe('LMEvalResult', () => {
 
   describe('Successful Rendering', () => {
     it('should render evaluation results when evaluation exists and has results', () => {
-      setupMocks();
-      renderComponent();
+      renderWithDefaultSetup();
 
-      expect(screen.getByText('Loaded: true')).toBeInTheDocument();
-      expect(screen.getByText('Empty: false')).toBeInTheDocument();
-      expect(screen.getByText('Title: test-evaluation')).toBeInTheDocument();
-      expect(screen.getByTestId('children')).toBeInTheDocument();
-      expect(screen.getByTestId('header-action')).toBeInTheDocument();
-    });
-
-    it('should render breadcrumb correctly', () => {
-      setupMocks();
-      renderComponent();
-
-      expect(screen.getByTestId('breadcrumb')).toBeInTheDocument();
+      expectLoadedState(true);
+      expectEmptyState(false);
+      expectTitle('test-evaluation');
+      expectElementPresence('children', true);
+      expectElementPresence('header-action', true);
+      expectElementPresence('breadcrumb', true);
     });
   });
 
   describe('Error States', () => {
-    it('should render not found message when evaluation does not exist', () => {
-      setupMocks(
-        { evaluationName: 'nonexistent-evaluation', namespace: 'test-project' },
-        mockEmptyHookResult,
-      );
-      renderComponent();
+    errorTestCases.forEach(({ name, setupKey, setupArgs, expectedMessage, expectedTitle }) => {
+      it(`should render error message when ${name}`, () => {
+        const scenarios = {
+          renderWithDefaultSetup,
+          renderWithEmptyEvaluation,
+          renderWithNoResults,
+          renderWithParseError,
+        };
+        const setupFunction = scenarios[setupKey];
 
-      expect(screen.getByText('Empty: true')).toBeInTheDocument();
-      expect(
-        screen.getByText('Empty Message: Evaluation "nonexistent-evaluation" not found'),
-      ).toBeInTheDocument();
-      expect(screen.getByText('Title: nonexistent-evaluation')).toBeInTheDocument();
-    });
+        if (setupKey === 'renderWithEmptyEvaluation' && setupArgs.length > 0) {
+          renderWithEmptyEvaluation(setupArgs[0]);
+        } else {
+          setupFunction();
+        }
 
-    it('should render not available message when evaluation has no results', () => {
-      setupMocks(
-        defaultParams,
-        {
-          data: createMockEvaluationData({ results: undefined }),
-          loaded: true,
-          error: undefined,
-          refresh: jest.fn(),
-        },
-        [], // Empty parse results
-      );
-      renderComponent();
-
-      expect(screen.getByText('Empty: true')).toBeInTheDocument();
-      expect(
-        screen.getByText('Empty Message: Evaluation results not yet available'),
-      ).toBeInTheDocument();
-      expect(screen.getByText('Title: test-evaluation')).toBeInTheDocument();
-    });
-
-    it('should render parse error message when results cannot be parsed', () => {
-      setupMocks(
-        defaultParams,
-        {
-          data: createMockEvaluationData({ results: 'invalid json' }),
-          loaded: true,
-          error: undefined,
-          refresh: jest.fn(),
-        },
-        [], // Empty parse results
-      );
-      renderComponent();
-
-      expect(screen.getByText('Empty: true')).toBeInTheDocument();
-      expect(
-        screen.getByText('Empty Message: Unable to parse evaluation results'),
-      ).toBeInTheDocument();
+        expectLoadedState(true);
+        expectEmptyState(true);
+        expectEmptyMessage(expectedMessage);
+        expectTitle(expectedTitle);
+      });
     });
 
     it('should handle missing evaluationName parameter', () => {
       setupMocks({ namespace: 'test-project' }, mockEmptyHookResult);
-      renderComponent();
+      renderLMEvalResultComponent();
 
-      expect(screen.getByText('Empty Message: Evaluation "Unknown" not found')).toBeInTheDocument();
+      expectEmptyMessage('Evaluation "Unknown" not found');
     });
 
     it('should handle loading state', () => {
       setupMocks(defaultParams, { ...mockEmptyHookResult, loaded: false });
-      renderComponent();
+      renderLMEvalResultComponent();
 
-      expect(screen.getByText('Loaded: false')).toBeInTheDocument();
+      expectLoadedState(false);
     });
 
     it('should pass load error to application page', () => {
       setupMocks(defaultParams, { ...mockEmptyHookResult, error: new Error('Load failed') });
-      renderComponent();
+      renderLMEvalResultComponent();
 
-      expect(screen.getByText('Loaded: true')).toBeInTheDocument();
-      expect(screen.getByText('Empty: true')).toBeInTheDocument();
+      expectLoadedState(true);
+      expectEmptyState(true);
     });
   });
 
   describe('Download Functionality', () => {
-    it('should show download button when evaluation has results', () => {
-      setupMocks();
-      renderComponent();
+    downloadTestCases.forEach(({ name, setupKey, shouldShowButton }) => {
+      it(name, () => {
+        const scenarios = {
+          renderWithDefaultSetup,
+          renderWithEmptyEvaluation,
+          renderWithNoResults,
+          renderWithParseError,
+        };
+        const setupFunction = scenarios[setupKey];
 
-      expect(screen.getByTestId('header-action')).toBeInTheDocument();
-    });
+        if (setupKey === 'renderWithEmptyEvaluation') {
+          setupMocks(defaultParams, mockEmptyHookResult);
+          renderLMEvalResultComponent();
+        } else {
+          setupFunction();
+        }
 
-    it('should not show download button when no evaluation data', () => {
-      setupMocks(defaultParams, mockEmptyHookResult);
-      renderComponent();
-
-      expect(screen.queryByTestId('header-action')).not.toBeInTheDocument();
+        expectElementPresence('header-action', shouldShowButton);
+      });
     });
   });
 
   describe('Hook Integration', () => {
     it('should call useLMEvalResult with correct parameters', () => {
-      setupMocks();
-      renderComponent();
+      renderWithDefaultSetup();
 
       expect(mockUseLMEvalResult).toHaveBeenCalled();
     });
 
     it('should call parseEvaluationResults with correct results string', () => {
-      setupMocks();
-      renderComponent();
+      renderWithDefaultSetup();
 
       expect(mockParseEvaluationResults).toHaveBeenCalledWith(
         mockSuccessfulHookResult.data.status.results,

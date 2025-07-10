@@ -4,15 +4,12 @@ import { SearchInput, Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/r
 import { Table, Thead, Tr, Th, Tbody, Td, TableVariant } from '@patternfly/react-table';
 import SimpleSelect from 'mod-arch-shared/dist/components/SimpleSelect';
 import DashboardEmptyTableView from 'mod-arch-shared/dist/components/DashboardEmptyTableView';
-import { COLUMN_FILTER_OPTIONS, SEARCH_PLACEHOLDERS, SearchColumn } from './utils';
-
-// Define the structure of a result row based on typical LM evaluation output
-export type EvaluationResult = {
-  task: string;
-  metric: string;
-  value: number;
-  error?: number;
-};
+import {
+  COLUMN_FILTER_OPTIONS,
+  SEARCH_PLACEHOLDERS,
+  SearchColumn,
+  EvaluationResult,
+} from './utils';
 
 type LMEvalResultTableProps = {
   results: EvaluationResult[];

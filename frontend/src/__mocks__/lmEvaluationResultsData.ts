@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { EvaluationResult } from '~/app/pages/lmEvalResult/LMEvalResultTable';
+import { EvaluationResult } from '~/app/pages/lmEvalResult/utils';
 
 export const mockResults: EvaluationResult[] = [
   { task: 'hellaswag', metric: 'acc,none', value: 0.85432, error: 0.02156 },

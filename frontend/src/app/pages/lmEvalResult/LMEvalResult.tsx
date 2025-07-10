@@ -11,11 +11,7 @@ import useLMEvalResult from './useLMEvalResult';
 const LMEvalResult: React.FC = () => {
   const { evaluationName } = useParams<{ evaluationName: string }>();
   const lmEvalResult = useLMEvalResult(evaluationName);
-
-  // Get the evaluation from the hook result
   const evaluation = lmEvalResult.data;
-
-  // Parse results only when evaluation or results change
   const results = React.useMemo(
     () => (evaluation?.status?.results ? parseEvaluationResults(evaluation.status.results) : []),
     [evaluation?.status?.results],
@@ -31,12 +27,10 @@ const LMEvalResult: React.FC = () => {
   const handleDownload = React.useCallback(() => {
     if (evaluation?.status?.results) {
       try {
-        // Parse the results string to get the actual results object
         const resultsObject = JSON.parse(evaluation.status.results);
         const rawData = JSON.stringify(resultsObject, null, 2);
         downloadString(`${evaluation.metadata.name}-results.json`, rawData);
       } catch {
-        // Fallback to downloading the raw results string if parsing fails
         downloadString(`${evaluation.metadata.name}-results.txt`, evaluation.status.results);
       }
     }

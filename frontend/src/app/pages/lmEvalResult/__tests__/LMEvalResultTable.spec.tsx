@@ -1,14 +1,19 @@
 import * as React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import LMEvalResultTable, { EvaluationResult } from '~/app/pages/lmEvalResult/LMEvalResultTable';
+import LMEvalResultTable from '~/app/pages/lmEvalResult/LMEvalResultTable';
 import {
   mockResults,
   incompleteResults,
   zeroResults,
   emptyResults,
 } from '~/__mocks__/lmEvaluationResultsData';
+import {
+  setupUserAndRender,
+  searchByText,
+  expectTableHeaders,
+  expectRowCount,
+} from './LMEvalResultTableHelpers';
 
 // Mock DashboardEmptyTableView
 jest.mock(
@@ -26,30 +31,6 @@ jest.mock(
       );
     },
 );
-
-// Helper functions
-const setupUserAndRender = (results: EvaluationResult[] = mockResults) => {
-  const user = userEvent.setup();
-  render(<LMEvalResultTable results={results} />);
-  return { user };
-};
-
-const searchByText = async (user: ReturnType<typeof userEvent.setup>, searchText: string) => {
-  const searchInput = screen.getByPlaceholderText('Find by task name');
-  await user.type(searchInput, searchText);
-  return searchInput;
-};
-
-const expectTableHeaders = () => {
-  expect(screen.getAllByText('Task')[1]).toBeInTheDocument();
-  expect(screen.getAllByText('Metric')[0]).toBeInTheDocument();
-  expect(screen.getAllByText('Value')[0]).toBeInTheDocument();
-  expect(screen.getAllByText('Error')[0]).toBeInTheDocument();
-};
-
-const expectRowCount = (expectedCount: number) => {
-  expect(screen.getAllByRole('row')).toHaveLength(expectedCount);
-};
 
 describe('LMEvalResultTable', () => {
   describe('Basic Rendering', () => {
