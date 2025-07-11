@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Breadcrumb, BreadcrumbItem, Button } from '@patternfly/react-core';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import ApplicationsPage from 'mod-arch-shared/dist/components/ApplicationsPage';
-import { downloadString } from '~/app/utils/string';
+import { downloadString } from '~/app/utilities/string';
 import LMEvalResultTable from './LMEvalResultTable';
 import { parseEvaluationResults } from './utils';
 import useLMEvalResult from './useLMEvalResult';
