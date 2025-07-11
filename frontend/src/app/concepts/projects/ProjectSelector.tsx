@@ -5,7 +5,6 @@ import { IconSize, ProjectKind } from '~/app/types';
 import { ProjectIconWithSize } from '~/app/concepts/projects/ProjectIconWithSize';
 import SearchSelector from '~/app/concepts/projects/SearchSelector';
 import { getDisplayNameFromK8sResource } from '~/concepts/k8s/utils';
-import ProjectNavigatorLink from './ProjectNavigatorLink';
 
 type LMEvalProjectSelectorProps = {
   onSelection: (projectName: string) => void;
@@ -115,10 +114,7 @@ const LMEvalProjectSelector: React.FC<LMEvalProjectSelectorProps> = ({
           <FlexItem>
             <Bullseye>{selectorLabel}</Bullseye>
           </FlexItem>
-          <FlexItem flex={{ default: 'flex_1' }}>
-            {selector}
-            <ProjectNavigatorLink project={selection} />
-          </FlexItem>
+          <FlexItem flex={{ default: 'flex_1' }}>{selector}</FlexItem>
         </Flex>
       </Flex>
     );
