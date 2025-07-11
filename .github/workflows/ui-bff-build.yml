@@ -9,11 +9,6 @@ on:
       - "!**/*.txt"
   pull_request:
     branches: [main]
-    paths:
-      - "bff/**"
-      - ".github/workflows/ui-bff-build.yml"
-      - "!**/*.md"
-      - "!**/*.txt"
 
 jobs:
   build:

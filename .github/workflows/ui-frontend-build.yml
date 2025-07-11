@@ -9,11 +9,6 @@ on:
       - "!**/*.txt"
   pull_request:
     branches: [main]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/ui-frontend-build.yml"
-      - "!**/*.md"
-      - "!**/*.txt"
 
 jobs:
   test-and-build:
