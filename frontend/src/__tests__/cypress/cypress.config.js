@@ -1,6 +1,7 @@
 const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({
+  screenshotsFolder: `results/screenshots`,
   e2e: {
     baseUrl: 'http://localhost:8080',
     supportFile: 'src/__tests__/cypress/support/e2e.ts',

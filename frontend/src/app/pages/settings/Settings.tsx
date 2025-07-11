@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { PageSection, Title } from '@patternfly/react-core';
-import { useDocumentTitle } from '@app/utils/useDocumentTitle';
+import { useDocumentTitle } from '~/app/utilities/useDocumentTitle';
 
 const Settings: React.FunctionComponent = () => {
   useDocumentTitle('Settings');

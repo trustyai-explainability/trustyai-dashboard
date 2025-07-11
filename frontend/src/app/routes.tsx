@@ -1,69 +1,25 @@
 import * as React from 'react';
-import { Route, Routes } from 'react-router-dom';
-import { Settings } from '@app/pages/settings/Settings';
-import { NotFound } from '@app/components/NotFound/NotFound';
-import { LmEval } from '@app/pages/lmEval/LmEval';
-import LMEvalForm from './pages/lmEvalForm/LMEvalForm';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { NavDataItem } from 'mod-arch-shared/dist/types/common';
+import NotFound from 'mod-arch-shared/dist/components/notFound/NotFound';
+import LMEvalRoutes from './pages/lmEval/LMEvalRoutes';
+import { Settings } from './pages/settings/Settings';
 
-export interface IAppRoute {
-  label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  element: React.ReactElement;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-  exact?: boolean;
-  path: string;
-  title: string;
-  routes?: undefined;
-}
-
-export interface IAppRouteGroup {
-  label: string;
-  routes: IAppRoute[];
-}
-
-export type AppRouteConfig = IAppRoute | IAppRouteGroup;
-
-const routes: AppRouteConfig[] = [
+export const useNavData = (): NavDataItem[] => [
   {
-    element: <LmEval />,
-    exact: true,
-    label: 'Model evaluations',
-    path: '/',
-    title: 'Model Evaluations Dashboard',
+    label: 'Model Evaluations',
+    path: '/modelEvaluations',
   },
-  {
-    element: <LMEvalForm />,
-    exact: true,
-    path: '/evaluate',
-    title: 'Model Evaluations Form',
-  },
-  {
-    label: 'Settings',
-    routes: [
-      {
-        element: <Settings />,
-        exact: true,
-        label: 'Settings',
-        path: '/settings',
-        title: 'Settings',
-      },
-    ],
-  },
+  { label: 'Settings', children: [{ label: 'Model Evaluations', path: '/settings' }] },
 ];
 
-const flattenedRoutes: IAppRoute[] = routes.reduce(
-  (flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])],
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  [] as IAppRoute[],
-);
-
-const AppRoutes = (): React.ReactElement => (
+const AppRoutes: React.FC = () => (
   <Routes>
-    {flattenedRoutes.map(({ path, element }, idx) => (
-      <Route path={path} element={element} key={idx} />
-    ))}
-    <Route element={<NotFound />} />
+    <Route path="/" element={<Navigate to="/modelEvaluations" replace />} />
+    <Route path="/modelEvaluations/*" element={<LMEvalRoutes />} />
+    <Route path="*" element={<NotFound />} />
+    <Route path="/settings/*" element={<Settings />} />
   </Routes>
 );
 
-export { AppRoutes, routes };
+export default AppRoutes;

@@ -1,5 +1,5 @@
 import { K8sResourceCommon } from 'mod-arch-shared/dist/types/common';
-import { genRandomChars } from '~/app/utils/string';
+import { genRandomChars } from 'mod-arch-shared/dist/utilities/string';
 
 /**
  * Notebook resource name validator - must start with a letter and contain only lowercase letters, numbers, and hyphens

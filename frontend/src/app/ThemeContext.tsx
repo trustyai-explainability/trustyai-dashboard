@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useBrowserStorage } from './utils/useBrowserStorage';
+import { useBrowserStorage } from './utilities/useBrowserStorage';
 
 type ThemeContextProps = {
   theme: 'light' | 'dark';
