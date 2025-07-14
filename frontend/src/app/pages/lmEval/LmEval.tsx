@@ -11,6 +11,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProjectSelectorNavigator from '~/app/concepts/projects/ProjectSelectorNavigator';
 import { LMEvalContext } from '~/app/context/LMEvalContext';
+import LMEvalListView from '~/app/pages/lmEvalList/LMEvalListView';
 import EvaluateModelButton from './components/EvaluateModelButton';
 import EvaluationTitleIcon from './components/EvaluationTitleIcon';
 import LMEvalLoading from './components/LMEvalLoading';
@@ -71,7 +72,7 @@ const LMEval = (): React.ReactElement => {
         )
       }
     >
-      {/* TODO: Add LMEvalListView */}
+      <LMEvalListView lmEval={lmEvalData} />
     </ApplicationsPage>
   );
 };
