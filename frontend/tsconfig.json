@@ -29,6 +29,6 @@
     "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.jsx", "**/*.js"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.jsx", "**/*.js", "src/app/concepts/k8s/K8sNameDescriptionField"],
   "exclude": ["node_modules", "dist", "public-cypress", "src/__tests__/cypress"]
 }
