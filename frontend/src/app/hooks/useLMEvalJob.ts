@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { mockLMEvaluation } from '~/__mocks__/mockLMEvaluation';
 import { CustomWatchK8sResult, LMEvalKind } from '~/app/types';
 
 /**
  * Simple mock implementation of useLMEvalJob hook
- * Returns mock data from __mocks__ folder
+ * Returns mock data from mockApi/lmEvalResults
  */
 export const useLMEvalJob = (namespace: string): CustomWatchK8sResult<LMEvalKind[]> => {
   const [data, setData] = useState<LMEvalKind[]>([]);
@@ -13,11 +12,14 @@ export const useLMEvalJob = (namespace: string): CustomWatchK8sResult<LMEvalKind
 
   useEffect(() => {
     // Simulate API loading delay
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       try {
+        // Import the proper mock data from mockApi
+        const { mockLMEvalResults } = await import('~/app/mockApi/lmEvalResults');
+
         const filteredData = namespace
-          ? [mockLMEvaluation()].filter((item) => item.metadata.namespace === namespace)
-          : [mockLMEvaluation()];
+          ? mockLMEvalResults.filter((item) => item.metadata.namespace === namespace)
+          : mockLMEvalResults;
 
         setData(filteredData);
         setLoaded(true);

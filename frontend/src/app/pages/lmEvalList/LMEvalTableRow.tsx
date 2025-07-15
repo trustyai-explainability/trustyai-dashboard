@@ -26,7 +26,7 @@ const LMEvalTableRow: React.FC<LMEvalTableRowType> = ({ lmEval, onDeleteLMEval }
         {currentState === LMEvalState.COMPLETE ? (
           <Link
             data-testid={`lm-eval-link-${lmEval.metadata.name}`}
-            to={`/modelEvaluations/${lmEval.metadata.namespace}/${lmEval.metadata.name}`}
+            to={`/modelEvaluations/${lmEval.metadata.namespace}/evaluations/${lmEval.metadata.name}`}
           >
             {getDisplayNameFromK8sResource(lmEval)}
           </Link>
@@ -35,7 +35,9 @@ const LMEvalTableRow: React.FC<LMEvalTableRowType> = ({ lmEval, onDeleteLMEval }
         )}
       </Td>
       <Td dataLabel="Model">
-        {lmEval.spec.modelArgs?.find((arg) => arg.name === 'model')?.value || '-'}
+        {lmEval.spec.model ||
+          lmEval.spec.modelArgs?.find((arg) => arg.name === 'model')?.value ||
+          '-'}
       </Td>
       <Td dataLabel="Evaluated">
         {lmEval.metadata.creationTimestamp ? (

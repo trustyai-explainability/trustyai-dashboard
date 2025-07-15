@@ -15,8 +15,8 @@ export const columns: SortableData<LMEvalKind>[] = [
     label: 'Model',
     width: 25,
     sortable: (a: LMEvalKind, b: LMEvalKind): number => {
-      const aModel = a.spec.modelArgs?.find((arg) => arg.name === 'model')?.value;
-      const bModel = b.spec.modelArgs?.find((arg) => arg.name === 'model')?.value;
+      const aModel = a.spec.model || a.spec.modelArgs?.find((arg) => arg.name === 'model')?.value;
+      const bModel = b.spec.model || b.spec.modelArgs?.find((arg) => arg.name === 'model')?.value;
       return aModel?.localeCompare(bModel ?? '') ?? 0;
     },
   },
