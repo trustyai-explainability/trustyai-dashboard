@@ -40,9 +40,8 @@ const LMEvalListView: React.FC<LMEvalListViewProps> = ({ lmEval: unfilteredLMEva
 
         return (
           !modelFilter ||
-          project.spec.modelArgs
-            ?.find((arg) => arg.name === 'model')
-            ?.value.toLowerCase()
+          (project.spec.model || project.spec.modelArgs?.find((arg) => arg.name === 'model')?.value)
+            ?.toLowerCase()
             .includes(modelFilter)
         );
       }),

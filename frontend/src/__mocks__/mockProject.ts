@@ -60,17 +60,20 @@ export const mockProjectsK8sList = (): K8sResourceListResult<ProjectKind> => ({
   items: [
     mockProjectK8sResource({
       k8sName: 'ds-project-1',
-      displayName: 'DS Project 1',
+      displayName: 'Llama & Claude Evaluations',
+      description: 'Project containing Llama and Claude model evaluation runs',
       isDSProject: true,
     }),
     mockProjectK8sResource({
       k8sName: 'ds-project-2',
-      displayName: 'DS Project 2',
+      displayName: 'Mistral & Multilingual Models',
+      description: 'Project for Mistral and multilingual model benchmarks',
       isDSProject: true,
     }),
     mockProjectK8sResource({
       k8sName: 'ds-project-3',
-      displayName: 'DS Project 3',
+      displayName: 'GPT Model Comparisons',
+      description: 'Project dedicated to GPT model comparison tests',
       isDSProject: true,
     }),
     mockProjectK8sResource({
