@@ -7,4 +7,4 @@ type ModelOption struct {
 	DisplayName string `json:"displayName"`
 	Namespace   string `json:"namespace"`
 	Service     string `json:"service"`
-} 
+}

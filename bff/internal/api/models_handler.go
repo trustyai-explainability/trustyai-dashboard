@@ -59,4 +59,4 @@ func (app *App) GetModelsHandler(w http.ResponseWriter, r *http.Request, _ httpr
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
-} 
+}
