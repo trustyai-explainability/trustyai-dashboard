@@ -58,7 +58,7 @@ func (app *App) EnableCORS(next http.Handler) http.Handler {
 		AllowedOrigins:     app.config.AllowedOrigins,
 		AllowCredentials:   true,
 		AllowedMethods:     []string{"GET", "PUT", "POST", "PATCH", "DELETE"},
-		AllowedHeaders:     []string{constants.KubeflowUserIDHeader, constants.KubeflowUserGroupsIdHeader},
+		AllowedHeaders:     []string{constants.KubeflowUserIDHeader, constants.KubeflowUserGroupsIdHeader, "Content-Type"},
 		Debug:              app.config.LogLevel == slog.LevelDebug,
 		OptionsPassthrough: false,
 	})
