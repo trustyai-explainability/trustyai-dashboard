@@ -26,6 +26,10 @@ func NewKubernetesClientFactory(cfg config.EnvConfig, logger *slog.Logger) (Kube
 		k8sFactory := NewTokenClientFactory(logger, cfg)
 		return k8sFactory, nil
 
+	case config.AuthMethodMock:
+		k8sFactory := NewMockClientFactory(logger)
+		return k8sFactory, nil
+
 	default:
 		return nil, fmt.Errorf("invalid auth method: %q", cfg.AuthMethod)
 	}
@@ -160,4 +164,58 @@ func (f *TokenClientFactory) GetClient(ctx context.Context) (KubernetesClientInt
 	}
 
 	return newTokenKubernetesClient(identity.Token, f.Logger)
+}
+
+//
+// ─── MOCK FACTORY (MOCK) ────────────────────────────────────────────────
+// uses a mock client for local development without requiring a Kubernetes cluster
+//
+
+type MockClientFactory struct {
+	Logger *slog.Logger
+	Client KubernetesClientInterface
+}
+
+func NewMockClientFactory(logger *slog.Logger) KubernetesClientFactory {
+	client := NewMockKubernetesClient(logger)
+	return &MockClientFactory{
+		Client: client,
+		Logger: logger,
+	}
+}
+
+func (f *MockClientFactory) GetClient(_ context.Context) (KubernetesClientInterface, error) {
+	return f.Client, nil
+}
+
+func (f *MockClientFactory) ExtractRequestIdentity(httpHeader http.Header) (*RequestIdentity, error) {
+	// In mock mode, we still require the kubeflow-userid header for consistency
+	userID := httpHeader.Get(constants.KubeflowUserIDHeader)
+	if userID == "" {
+		return nil, errors.New("missing required kubeflow-userid header")
+	}
+
+	userGroupsHeader := httpHeader.Get(constants.KubeflowUserGroupsIdHeader)
+	groups := []string{}
+	if userGroupsHeader != "" {
+		for _, g := range strings.Split(userGroupsHeader, ",") {
+			groups = append(groups, strings.TrimSpace(g))
+		}
+	}
+
+	identity := &RequestIdentity{
+		UserID: userID,
+		Groups: groups,
+	}
+	return identity, nil
+}
+
+func (f *MockClientFactory) ValidateRequestIdentity(identity *RequestIdentity) error {
+	if identity == nil {
+		return errors.New("missing identity")
+	}
+	if identity.UserID == "" {
+		return errors.New("user ID (kubeflow-userid) required for mock authentication")
+	}
+	return nil
 }

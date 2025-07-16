@@ -13,6 +13,9 @@ const (
 	// AuthMethodUser uses a user-provided Bearer token for authentication.
 	AuthMethodUser = "user_token"
 
+	// AuthMethodMock uses a mock client for local development without requiring a Kubernetes cluster.
+	AuthMethodMock = "mock"
+
 	// DefaultAuthTokenHeader is the standard header for Bearer token auth.
 	DefaultAuthTokenHeader = "Authorization"
 
