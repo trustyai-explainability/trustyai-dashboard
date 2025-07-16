@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import ApplicationsPage from 'mod-arch-shared/dist/components/ApplicationsPage';
 import {
@@ -22,7 +23,8 @@ import { Link } from 'react-router-dom';
 import K8sNameDescriptionField, {
   useK8sNameDescriptionFieldData,
 } from '~/app/components/K8sNameDescriptionField/K8sNameDescriptionField';
-import { modelOptions } from '~/app/mockApi/modelOptions';
+import { ModelService } from '~/app/api/service';
+import type { ModelOption } from '~/app/mockApi/modelOptions';
 import { LmEvalFormData, LmModelArgument } from './utilities/types';
 import LmEvaluationTaskSection from './LMEvalTaskSection';
 import useLMGenericObjectState from './utilities/useLMGenericObjectState';
@@ -90,6 +92,12 @@ const LMEvalForm: React.FC = () => {
     setData('k8sName', lmEvalName.k8sName.value);
     setData('evaluationName', lmEvalName.name);
   }, [lmEvalName.k8sName.value, lmEvalName.name, setData]);
+
+  // Fetch model options from API
+  const [modelOptions, setModelOptions] = useState<ModelOption[]>([]);
+  useEffect(() => {
+    ModelService.getModels().then(setModelOptions);
+  }, []);
 
   const selectedModel = modelOptions.find((model) => model.value === data.deployedModelName);
   const selectedModelLabel = selectedModel?.label || 'Select a model';

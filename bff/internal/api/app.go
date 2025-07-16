@@ -20,6 +20,7 @@ const (
 	UserPath        = ApiPathPrefix + "/user"
 	NamespacesPath  = ApiPathPrefix + "/namespaces"
 	EvaluationsPath = ApiPathPrefix + "/evaluations"
+	ModelsPath      = ApiPathPrefix + "/models"
 )
 
 type App struct {
@@ -60,6 +61,9 @@ func (app *App) Routes() http.Handler {
 	apiRouter.POST(EvaluationsPath, app.CreateLMEvalHandler)
 	apiRouter.GET(EvaluationsPath+"/:name", app.GetLMEvalHandler)
 	apiRouter.DELETE(EvaluationsPath+"/:name", app.DeleteLMEvalHandler)
+
+	// Models routes
+	apiRouter.GET(ModelsPath, app.GetModelsHandler)
 
 	// App Router
 	appMux := http.NewServeMux()

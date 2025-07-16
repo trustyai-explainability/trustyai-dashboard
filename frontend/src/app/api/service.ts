@@ -120,6 +120,18 @@ export class UserService {
   }
 }
 
+export class ModelService {
+  /**
+   * Get all available models
+   */
+  static async getModels(): Promise<
+    Array<{ value: string; label: string; displayName: string; namespace: string; service: string }>
+  > {
+    const response = await k8sApi.getModels();
+    return response.data;
+  }
+}
+
 // Export default service instances
 export const lmEvalService = LMEvalService;
 export const namespaceService = NamespaceService;

@@ -1,23 +1,149 @@
-# LMEval API Endpoints
+# TrustyAI Dashboard API Documentation
 
-This document describes the new LMEval (Model Evaluation) API endpoints that have been implemented in the BFF (Backend for Frontend).
+This document describes the complete API endpoints implemented in the BFF (Backend for Frontend) for the TrustyAI Dashboard.
 
 ## Overview
 
-The LMEval API provides CRUD operations for managing model evaluation resources in Kubernetes. These endpoints integrate with the TrustyAI LMEval Custom Resource Definition (CRD) to manage model evaluation jobs.
+The TrustyAI Dashboard API provides a unified interface for managing model evaluations, namespaces, and user information. The API integrates with Kubernetes to manage TrustyAI LMEval Custom Resource Definitions (CRDs) and provides a clean abstraction for the frontend.
 
 ## Base URL
 
-All endpoints are prefixed with `/api/v1/evaluations`
+All API endpoints are prefixed with `/api/v1`
 
 ## Authentication
 
 All endpoints require authentication. The authentication method is determined by the `auth-method` configuration:
 
-- `internal`: Uses service account credentials (default)
-- `user_token`: Uses Bearer token authentication
+- `internal`: Uses Kubernetes service account credentials (production)
+- `user_token`: Uses Bearer token authentication (production)
+- `mock`: Uses mock authentication for local development
 
-## Endpoints
+### Required Headers
+
+- `kubeflow-userid`: User identifier (required for all endpoints)
+- `Content-Type: application/json`: For POST/PUT requests
+
+## Core Endpoints
+
+### 1. Health Check
+
+**GET** `/healthcheck`
+
+Simple health check endpoint to verify the service is running.
+
+#### Example Request
+
+```bash
+curl -X GET "http://localhost:8080/healthcheck"
+```
+
+#### Example Response
+
+```json
+{
+  "status": "ok",
+  "timestamp": "2024-01-15T10:00:00Z"
+}
+```
+
+### 2. User Information
+
+**GET** `/api/v1/user`
+
+Retrieves current user information and permissions.
+
+#### Example Request
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/user" \
+  -H "kubeflow-userid: user@example.com"
+```
+
+#### Example Response
+
+```json
+{
+  "data": {
+    "userID": "user@example.com",
+    "clusterAdmin": false
+  }
+}
+```
+
+### 3. Namespaces
+
+**GET** `/api/v1/namespaces`
+
+Lists all namespaces that the current user has access to.
+
+#### Example Request
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/namespaces" \
+  -H "kubeflow-userid: user@example.com"
+```
+
+#### Example Response
+
+```json
+{
+  "data": [
+    {
+      "name": "project-1",
+      "displayName": "Project 1",
+      "description": "First test project"
+    },
+    {
+      "name": "project-2",
+      "displayName": "Project 2",
+      "description": "Second test project"
+    },
+    {
+      "name": "ds-project-3",
+      "displayName": "Data Science Project",
+      "description": "Data science project with model evaluations"
+    }
+  ]
+}
+```
+
+### 4. Models
+
+**GET** `/api/v1/models`
+
+Lists available models for evaluation.
+
+#### Example Request
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/models" \
+  -H "kubeflow-userid: user@example.com"
+```
+
+#### Example Response
+
+```json
+{
+  "data": [
+    {
+      "value": "llama2-7b-chat",
+      "label": "Llama 2 7B Chat",
+      "displayName": "Llama 2 7B Chat",
+      "namespace": "default",
+      "service": "https://api.example.com/llama2-7b-chat"
+    },
+    {
+      "value": "gpt-3.5-turbo",
+      "label": "GPT-3.5 Turbo",
+      "displayName": "GPT-3.5 Turbo",
+      "namespace": "default",
+      "service": "https://api.openai.com/v1"
+    }
+  ]
+}
+```
+
+## Model Evaluation Endpoints
 
 ### 1. List Evaluations
 
@@ -32,7 +158,7 @@ Lists all LMEval resources, optionally filtered by namespace.
 #### Example Request
 
 ```bash
-curl -X GET "http://localhost:8080/api/v1/evaluations?namespace=my-project" \
+curl -X GET "http://localhost:8080/api/v1/evaluations?namespace=project-1" \
   -H "kubeflow-userid: user@example.com"
 ```
 
@@ -51,11 +177,12 @@ curl -X GET "http://localhost:8080/api/v1/evaluations?namespace=my-project" \
         "apiVersion": "trustyai.opendatahub.io/v1alpha1",
         "kind": "LMEval",
         "metadata": {
-          "name": "my-evaluation",
-          "namespace": "my-project",
+          "name": "llama-eval-completed",
+          "namespace": "project-1",
           "annotations": {
-            "opendatahub.io/display-name": "My Model Evaluation"
-          }
+            "opendatahub.io/display-name": "Llama Model Evaluation - Completed"
+          },
+          "creationTimestamp": "2024-01-15T10:00:00Z"
         },
         "spec": {
           "model": "llama2-7b-chat",
@@ -64,11 +191,13 @@ curl -X GET "http://localhost:8080/api/v1/evaluations?namespace=my-project" \
           },
           "allowCodeExecution": false,
           "allowOnline": true,
-          "batchSize": "8"
+          "batchSize": "8",
+          "logSamples": true
         },
         "status": {
           "state": "Complete",
-          "message": "Evaluation completed successfully"
+          "message": "Evaluation completed successfully",
+          "results": "{\"results\":{\"hellaswag\":{\"acc,none\":0.85,\"acc_norm,none\":0.75},\"arc_easy\":{\"acc,none\":0.82,\"acc_norm,none\":0.80}}}"
         }
       }
     ]
@@ -109,7 +238,7 @@ Creates a new LMEval resource.
 #### Example Request
 
 ```bash
-curl -X POST "http://localhost:8080/api/v1/evaluations?namespace=my-project" \
+curl -X POST "http://localhost:8080/api/v1/evaluations?namespace=project-1" \
   -H "Content-Type: application/json" \
   -H "kubeflow-userid: user@example.com" \
   -d '{
@@ -135,10 +264,11 @@ curl -X POST "http://localhost:8080/api/v1/evaluations?namespace=my-project" \
     "kind": "LMEval",
     "metadata": {
       "name": "my-model-evaluation",
-      "namespace": "my-project",
+      "namespace": "project-1",
       "annotations": {
         "opendatahub.io/display-name": "My Model Evaluation"
-      }
+      },
+      "creationTimestamp": "2024-01-15T10:00:00Z"
     },
     "spec": {
       "model": "llama2-7b-chat",
@@ -160,6 +290,11 @@ curl -X POST "http://localhost:8080/api/v1/evaluations?namespace=my-project" \
           "size": "100Mi"
         }
       }
+    },
+    "status": {
+      "state": "Pending",
+      "message": "Evaluation created successfully",
+      "reason": "EvaluationPending"
     }
   }
 }
@@ -182,7 +317,7 @@ Retrieves a specific LMEval resource by name.
 #### Example Request
 
 ```bash
-curl -X GET "http://localhost:8080/api/v1/evaluations/my-model-evaluation?namespace=my-project" \
+curl -X GET "http://localhost:8080/api/v1/evaluations/eval-1?namespace=ds-project-3" \
   -H "kubeflow-userid: user@example.com"
 ```
 
@@ -194,19 +329,27 @@ curl -X GET "http://localhost:8080/api/v1/evaluations/my-model-evaluation?namesp
     "apiVersion": "trustyai.opendatahub.io/v1alpha1",
     "kind": "LMEval",
     "metadata": {
-      "name": "my-model-evaluation",
-      "namespace": "my-project"
+      "name": "eval-1",
+      "namespace": "ds-project-3",
+      "annotations": {
+        "opendatahub.io/display-name": "Evaluation 1"
+      },
+      "creationTimestamp": "2024-01-15T10:00:00Z"
     },
     "spec": {
       "model": "llama2-7b-chat",
       "taskList": {
-        "taskNames": ["hellaswag"]
-      }
+        "taskNames": ["hellaswag", "arc_easy"]
+      },
+      "allowCodeExecution": false,
+      "allowOnline": true,
+      "batchSize": "8",
+      "logSamples": true
     },
     "status": {
       "state": "Complete",
       "message": "Evaluation completed successfully",
-      "results": "{\"hellaswag\": {\"accuracy\": 0.85}}"
+      "results": "{\"results\":{\"hellaswag\":{\"acc,none\":0.87,\"acc_norm,none\":0.77},\"arc_easy\":{\"acc,none\":0.82,\"acc_norm,none\":0.80}}}"
     }
   }
 }
@@ -229,7 +372,7 @@ Deletes a specific LMEval resource.
 #### Example Request
 
 ```bash
-curl -X DELETE "http://localhost:8080/api/v1/evaluations/my-model-evaluation?namespace=my-project" \
+curl -X DELETE "http://localhost:8080/api/v1/evaluations/my-model-evaluation?namespace=project-1" \
   -H "kubeflow-userid: user@example.com"
 ```
 
@@ -261,50 +404,112 @@ Error responses follow this format:
 }
 ```
 
+## Mock Mode
+
+When running with `--auth-method=mock`, the API returns predefined mock data for local development:
+
+### Mock Namespaces
+
+- `project-1`: Contains "Llama Model Evaluation - Completed"
+- `project-2`: Contains "Mistral 7B Benchmark - In Progress"
+- `ds-project-3`: Contains "eval-1" (Complete) and "eval-2" (Running)
+
+### Mock Evaluations
+
+- **Completed evaluations** include realistic `results` data in JSON format
+- **Running evaluations** show progress status without results
+- **All projects** filter returns evaluations from all namespaces
+
+### Mock Models
+
+- `llama2-7b-chat`: Llama 2 7B Chat model
+- `gpt-3.5-turbo`: GPT-3.5 Turbo model
+- `mistral-7b-instruct`: Mistral 7B Instruct model
+
 ## Kubernetes Integration
 
 The API integrates with Kubernetes using:
 
 1. **Dynamic Client**: Uses `k8s.io/client-go/dynamic` to interact with the LMEval CRD
 2. **Group Version Resource**: `trustyai.opendatahub.io/v1alpha1/lmevals`
-3. **Authentication**: Supports both service account and user token authentication
+3. **Authentication**: Supports service account, user token, and mock authentication
 4. **Authorization**: Validates user permissions using Subject Access Reviews (SAR)
 
 ## Implementation Details
 
 ### Models
 
-- `LMEvalKind`: Main resource type
-- `LMEvalCreateRequest`: Request body for creation
+- `LMEvalKind`: Main resource type for evaluations
+- `LMEvalCreateRequest`: Request body for evaluation creation
 - `LMEvalList`: List response wrapper
+- `ModelOption`: Available model configuration
+- `Namespace`: Namespace information
 
 ### Handlers
 
-- `CreateLMEvalHandler`: Handles POST requests
-- `GetLMEvalHandler`: Handles GET requests for individual resources
-- `ListLMEvalsHandler`: Handles GET requests for lists
-- `DeleteLMEvalHandler`: Handles DELETE requests
+- `CreateLMEvalHandler`: Handles POST requests for evaluation creation
+- `GetLMEvalHandler`: Handles GET requests for individual evaluations
+- `ListLMEvalsHandler`: Handles GET requests for evaluation lists
+- `DeleteLMEvalHandler`: Handles DELETE requests for evaluations
+- `GetModelsHandler`: Handles GET requests for available models
+- `GetNamespacesHandler`: Handles GET requests for user namespaces
+- `GetUserHandler`: Handles GET requests for user information
+- `HealthCheckHandler`: Handles health check requests
 
-### Kubernetes Client
+### Kubernetes Client Interface
 
-The `KubernetesClientInterface` has been extended with LMEval-specific methods:
+The `KubernetesClientInterface` provides these methods:
 
-- `CreateLMEval()`
-- `GetLMEval()`
-- `ListLMEvals()`
-- `DeleteLMEval()`
+- `CreateLMEval(ctx, identity, namespace, lmEval)`
+- `GetLMEval(ctx, identity, namespace, name)`
+- `ListLMEvals(ctx, identity, namespace)`
+- `DeleteLMEval(ctx, identity, namespace, name)`
+- `GetNamespaces(ctx, identity)`
+- `GetUser(identity)`
+- `IsClusterAdmin(identity)`
+
+### Mock Client
+
+For local development, a `MockKubernetesClient` implements the same interface with predefined data, allowing full frontend testing without a Kubernetes cluster.
 
 ## Testing
 
-Comprehensive unit tests are included in `lm_eval_handler_test.go` that verify:
+Comprehensive unit tests verify:
 
-- Request validation
+- Request validation and parsing
 - Response formatting
 - Error handling
 - Mock Kubernetes client integration
+- Authentication and authorization
 
 Run tests with:
 
 ```bash
+cd bff
 make test
 ```
+
+## Development
+
+### Running Locally
+
+```bash
+cd bff
+go run ./cmd --auth-method=mock --allowed-origins=http://localhost:9000
+```
+
+### Production Deployment
+
+```bash
+cd bff
+go run ./cmd --auth-method=internal --allowed-origins=https://your-frontend-domain.com
+```
+
+## CORS Configuration
+
+The API supports CORS for frontend integration:
+
+- Configure allowed origins via `--allowed-origins` flag
+- Supports credentials for authenticated requests
+- Allows standard HTTP methods (GET, POST, PUT, DELETE, OPTIONS)
+- Includes required headers for Kubeflow integration

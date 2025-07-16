@@ -129,7 +129,72 @@ func (m *MockKubernetesClient) CreateLMEval(ctx context.Context, identity *Reque
 }
 
 func (m *MockKubernetesClient) GetLMEval(ctx context.Context, identity *RequestIdentity, namespace, name string) (*models.LMEvalKind, error) {
-	// Return a mock LMEval
+	// Define all mock evaluations with results
+	allMockItems := map[string]models.LMEvalKind{
+		"llama-eval-completed": {
+			APIVersion: "trustyai.opendatahub.io/v1alpha1",
+			Kind:       "LMEval",
+			Metadata: models.LMEvalMetadata{
+				Name:              "llama-eval-completed",
+				Namespace:         "project-1",
+				CreationTimestamp: time.Now().Add(-2 * time.Hour),
+				Annotations: map[string]string{
+					"opendatahub.io/display-name": "Llama Model Evaluation - Completed",
+				},
+			},
+			Spec: models.LMEvalSpec{
+				Model: "llama2-7b-chat",
+				TaskList: models.LMEvalTaskList{
+					TaskNames: []string{"hellaswag", "arc_easy"},
+				},
+				AllowCodeExecution: false,
+				AllowOnline:        true,
+				BatchSize:          "8",
+			},
+			Status: &models.LMEvalStatus{
+				State:   "Complete",
+				Message: "Evaluation completed successfully",
+				Results: `{"results":{"hellaswag":{"acc,none":0.85,"acc_norm,none":0.75},"arc_easy":{"acc,none":0.82,"acc_norm,none":0.80}}}`,
+			},
+		},
+		"eval-1": {
+			APIVersion: "trustyai.opendatahub.io/v1alpha1",
+			Kind:       "LMEval",
+			Metadata: models.LMEvalMetadata{
+				Name:              "eval-1",
+				Namespace:         "ds-project-3",
+				CreationTimestamp: time.Now().Add(-2 * time.Hour),
+				Annotations: map[string]string{
+					"opendatahub.io/display-name": "Evaluation 1",
+				},
+			},
+			Spec: models.LMEvalSpec{
+				Model: "llama2-7b-chat",
+				TaskList: models.LMEvalTaskList{
+					TaskNames: []string{"hellaswag", "arc_easy"},
+				},
+				AllowCodeExecution: false,
+				AllowOnline:        true,
+				BatchSize:          "8",
+			},
+			Status: &models.LMEvalStatus{
+				State:   "Complete",
+				Message: "Evaluation completed successfully",
+				Results: `{"results":{"hellaswag":{"acc,none":0.87,"acc_norm,none":0.77},"arc_easy":{"acc,none":0.82,"acc_norm,none":0.80}}}`,
+			},
+		},
+	}
+
+	// Try to find the specific evaluation
+	if eval, exists := allMockItems[name]; exists && eval.Metadata.Namespace == namespace {
+		m.Logger.Info("Mock: Retrieved LMEval",
+			"name", name,
+			"namespace", namespace,
+			"user", identity.UserID)
+		return &eval, nil
+	}
+
+	// Fallback to generic mock if not found
 	mockLMEval := &models.LMEvalKind{
 		APIVersion: "trustyai.opendatahub.io/v1alpha1",
 		Kind:       "LMEval",
@@ -158,7 +223,7 @@ func (m *MockKubernetesClient) GetLMEval(ctx context.Context, identity *RequestI
 		},
 	}
 
-	m.Logger.Info("Mock: Retrieved LMEval",
+	m.Logger.Info("Mock: Retrieved LMEval (fallback)",
 		"name", name,
 		"namespace", namespace,
 		"user", identity.UserID)
@@ -167,23 +232,23 @@ func (m *MockKubernetesClient) GetLMEval(ctx context.Context, identity *RequestI
 }
 
 func (m *MockKubernetesClient) ListLMEvals(ctx context.Context, identity *RequestIdentity, namespace string) (*models.LMEvalList, error) {
-	// Return a mock list of LMEvals
-	mockItems := []models.LMEvalKind{
+	// Define all mock evaluations
+	allMockItems := []models.LMEvalKind{
 		{
 			APIVersion: "trustyai.opendatahub.io/v1alpha1",
 			Kind:       "LMEval",
 			Metadata: models.LMEvalMetadata{
-				Name:              "eval-1",
-				Namespace:         namespace,
+				Name:              "llama-eval-completed",
+				Namespace:         "project-1",
 				CreationTimestamp: time.Now().Add(-2 * time.Hour),
 				Annotations: map[string]string{
-					"opendatahub.io/display-name": "Evaluation 1",
+					"opendatahub.io/display-name": "Llama Model Evaluation - Completed",
 				},
 			},
 			Spec: models.LMEvalSpec{
 				Model: "llama2-7b-chat",
 				TaskList: models.LMEvalTaskList{
-					TaskNames: []string{"hellaswag"},
+					TaskNames: []string{"hellaswag", "arc_easy"},
 				},
 				AllowCodeExecution: false,
 				AllowOnline:        true,
@@ -192,6 +257,58 @@ func (m *MockKubernetesClient) ListLMEvals(ctx context.Context, identity *Reques
 			Status: &models.LMEvalStatus{
 				State:   "Complete",
 				Message: "Evaluation completed successfully",
+				Results: `{"results":{"hellaswag":{"acc,none":0.85,"acc_norm,none":0.75},"arc_easy":{"acc,none":0.82,"acc_norm,none":0.80}}}`,
+			},
+		},
+		{
+			APIVersion: "trustyai.opendatahub.io/v1alpha1",
+			Kind:       "LMEval",
+			Metadata: models.LMEvalMetadata{
+				Name:              "mistral-eval-running",
+				Namespace:         "project-2",
+				CreationTimestamp: time.Now().Add(-1 * time.Hour),
+				Annotations: map[string]string{
+					"opendatahub.io/display-name": "Mistral 7B Benchmark - In Progress",
+				},
+			},
+			Spec: models.LMEvalSpec{
+				Model: "mistral-7b-instruct",
+				TaskList: models.LMEvalTaskList{
+					TaskNames: []string{"mmlu", "gsm8k"},
+				},
+				AllowCodeExecution: true,
+				AllowOnline:        false,
+				BatchSize:          "16",
+			},
+			Status: &models.LMEvalStatus{
+				State:   "Running",
+				Message: "Evaluation in progress",
+			},
+		},
+		{
+			APIVersion: "trustyai.opendatahub.io/v1alpha1",
+			Kind:       "LMEval",
+			Metadata: models.LMEvalMetadata{
+				Name:              "eval-1",
+				Namespace:         "ds-project-3",
+				CreationTimestamp: time.Now().Add(-2 * time.Hour),
+				Annotations: map[string]string{
+					"opendatahub.io/display-name": "Evaluation 1",
+				},
+			},
+			Spec: models.LMEvalSpec{
+				Model: "llama2-7b-chat",
+				TaskList: models.LMEvalTaskList{
+					TaskNames: []string{"hellaswag", "arc_easy"},
+				},
+				AllowCodeExecution: false,
+				AllowOnline:        true,
+				BatchSize:          "8",
+			},
+			Status: &models.LMEvalStatus{
+				State:   "Complete",
+				Message: "Evaluation completed successfully",
+				Results: `{"results":{"hellaswag":{"acc,none":0.87,"acc_norm,none":0.77},"arc_easy":{"acc,none":0.82,"acc_norm,none":0.80}}}`,
 			},
 		},
 		{
@@ -199,7 +316,7 @@ func (m *MockKubernetesClient) ListLMEvals(ctx context.Context, identity *Reques
 			Kind:       "LMEval",
 			Metadata: models.LMEvalMetadata{
 				Name:              "eval-2",
-				Namespace:         namespace,
+				Namespace:         "ds-project-3",
 				CreationTimestamp: time.Now().Add(-1 * time.Hour),
 				Annotations: map[string]string{
 					"opendatahub.io/display-name": "Evaluation 2",
@@ -221,15 +338,15 @@ func (m *MockKubernetesClient) ListLMEvals(ctx context.Context, identity *Reques
 		},
 	}
 
-	// Filter by namespace if specified
-	if namespace != "" {
-		filteredItems := make([]models.LMEvalKind, 0)
-		for _, item := range mockItems {
+	var mockItems []models.LMEvalKind
+	if namespace == "" {
+		mockItems = allMockItems // All projects: return all evaluations
+	} else {
+		for _, item := range allMockItems {
 			if item.Metadata.Namespace == namespace {
-				filteredItems = append(filteredItems, item)
+				mockItems = append(mockItems, item)
 			}
 		}
-		mockItems = filteredItems
 	}
 
 	mockList := &models.LMEvalList{

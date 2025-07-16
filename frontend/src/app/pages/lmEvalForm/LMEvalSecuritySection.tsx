@@ -29,8 +29,8 @@ const LMEvalSecuritySection: React.FC<LMEvalSecuritySectionProps> = ({
   const { data: securityConfig, loaded: securityConfigLoaded } = useTrustyAIConfigMap();
 
   // Check if settings are globally disabled (false or 'false' means disabled)
-  const isOnlineDisabled = securityConfig?.data?.['lmes-allow-online'] === 'false';
-  const isRemoteCodeDisabled = securityConfig?.data?.['lmes-allow-code-execution'] === 'false';
+  const isOnlineDisabled = securityConfig?.data['lmes-allow-online'] === 'false';
+  const isRemoteCodeDisabled = securityConfig?.data['lmes-allow-code-execution'] === 'false';
 
   return (
     <FormFieldGroupExpandable

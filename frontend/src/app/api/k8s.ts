@@ -136,6 +136,26 @@ export const k8sApi = {
   // User info
   getUser: (): Promise<{ data: { userID: string; clusterAdmin: boolean } }> =>
     apiClient.get<{ data: { userID: string; clusterAdmin: boolean } }>('/user'),
+
+  // Models
+  getModels: (): Promise<{
+    data: Array<{
+      value: string;
+      label: string;
+      displayName: string;
+      namespace: string;
+      service: string;
+    }>;
+  }> =>
+    apiClient.get<{
+      data: Array<{
+        value: string;
+        label: string;
+        displayName: string;
+        namespace: string;
+        service: string;
+      }>;
+    }>('/models'),
 };
 
 export default k8sApi;
