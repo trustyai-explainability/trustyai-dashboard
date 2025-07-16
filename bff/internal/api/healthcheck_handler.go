@@ -1,9 +1,10 @@
 package api
 
 import (
-	"github.com/alexcreasy/modarch-quickstart/internal/models"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
+	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/models"
 )
 
 func (app *App) HealthcheckHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

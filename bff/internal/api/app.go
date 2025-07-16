@@ -1,12 +1,15 @@
 package api
 
 import (
-	"github.com/alexcreasy/modarch-quickstart/internal/config"
-	helper "github.com/alexcreasy/modarch-quickstart/internal/helpers"
-	"github.com/julienschmidt/httprouter"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"path"
+
+	"github.com/julienschmidt/httprouter"
+	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/config"
+	helper "github.com/trustyai-explainability/trustyai-dashboard/bff/internal/helpers"
+	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/integrations/kubernetes"
 )
 
 const (
@@ -14,19 +17,29 @@ const (
 
 	ApiPathPrefix   = "/api/v1"
 	HealthCheckPath = "/healthcheck"
+	UserPath        = ApiPathPrefix + "/user"
+	NamespacesPath  = ApiPathPrefix + "/namespaces"
+	EvaluationsPath = ApiPathPrefix + "/evaluations"
 )
 
 type App struct {
-	config config.EnvConfig
-	logger *slog.Logger
+	config                  config.EnvConfig
+	logger                  *slog.Logger
+	kubernetesClientFactory kubernetes.KubernetesClientFactory
 }
 
 func NewApp(cfg config.EnvConfig, logger *slog.Logger) (*App, error) {
 	logger.Debug("Initializing app with config", slog.Any("config", cfg))
 
+	k8sFactory, err := kubernetes.NewKubernetesClientFactory(cfg, logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create Kubernetes client: %w", err)
+	}
+
 	app := &App{
-		config: cfg,
-		logger: logger,
+		config:                  cfg,
+		logger:                  logger,
+		kubernetesClientFactory: k8sFactory,
 	}
 	return app, nil
 }
@@ -38,7 +51,15 @@ func (app *App) Routes() http.Handler {
 	apiRouter.NotFound = http.HandlerFunc(app.notFoundResponse)
 	apiRouter.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
-	// HTTP client routes
+	// Kubernetes routes
+	apiRouter.GET(UserPath, app.UserHandler)
+	apiRouter.GET(NamespacesPath, app.GetNamespacesHandler)
+
+	// LMEval routes
+	apiRouter.GET(EvaluationsPath, app.ListLMEvalsHandler)
+	apiRouter.POST(EvaluationsPath, app.CreateLMEvalHandler)
+	apiRouter.GET(EvaluationsPath+"/:name", app.GetLMEvalHandler)
+	apiRouter.DELETE(EvaluationsPath+"/:name", app.DeleteLMEvalHandler)
 
 	// App Router
 	appMux := http.NewServeMux()
@@ -83,7 +104,7 @@ func (app *App) Routes() http.Handler {
 	// Combines the healthcheck endpoint with the rest of the routes
 	combinedMux := http.NewServeMux()
 	combinedMux.Handle(HealthCheckPath, healthcheckMux)
-	combinedMux.Handle("/", app.RecoverPanic(app.EnableTelemetry(app.EnableCORS(appMux))))
+	combinedMux.Handle("/", app.RecoverPanic(app.EnableTelemetry(app.EnableCORS(app.InjectRequestIdentity(appMux)))))
 
 	return combinedMux
 }

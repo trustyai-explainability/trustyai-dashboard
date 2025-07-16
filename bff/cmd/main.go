@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/alexcreasy/modarch-quickstart/internal/api"
-	"github.com/alexcreasy/modarch-quickstart/internal/config"
+	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/api"
+	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/config"
 )
 
 func main() {
@@ -22,11 +22,20 @@ func main() {
 	flag.StringVar(&cfg.StaticAssetsDir, "static-assets-dir", "./static", "Configure frontend static assets root directory")
 	flag.TextVar(&cfg.LogLevel, "log-level", parseLevel(getEnvAsString("LOG_LEVEL", "DEBUG")), "Sets server log level, possible values: error, warn, info, debug")
 	flag.Func("allowed-origins", "Sets allowed origins for CORS purposes, accepts a comma separated list of origins or * to allow all, default none", newOriginParser(&cfg.AllowedOrigins, getEnvAsString("ALLOWED_ORIGINS", "")))
+	flag.StringVar(&cfg.AuthMethod, "auth-method", "internal", "Authentication method (internal or user_token)")
+	flag.StringVar(&cfg.AuthTokenHeader, "auth-token-header", getEnvAsString("AUTH_TOKEN_HEADER", config.DefaultAuthTokenHeader), "Header used to extract the token (e.g., Authorization)")
+	flag.StringVar(&cfg.AuthTokenPrefix, "auth-token-prefix", getEnvAsString("AUTH_TOKEN_PREFIX", config.DefaultAuthTokenPrefix), "Prefix used in the token header (e.g., 'Bearer ')")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: cfg.LogLevel,
 	}))
+
+	//validate auth method
+	if cfg.AuthMethod != config.AuthMethodInternal && cfg.AuthMethod != config.AuthMethodUser {
+		logger.Error("invalid auth method: (must be internal or user_token)", "authMethod", cfg.AuthMethod)
+		os.Exit(1)
+	}
 
 	// Only use for logging errors about logging configuration.
 	slog.SetDefault(logger)

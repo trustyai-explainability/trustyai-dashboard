@@ -3,13 +3,15 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/alexcreasy/modarch-quickstart/internal/constants"
-	helper "github.com/alexcreasy/modarch-quickstart/internal/helpers"
-	"github.com/google/uuid"
-	"github.com/rs/cors"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
+	"strings"
+
+	"github.com/google/uuid"
+	"github.com/rs/cors"
+	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/constants"
+	helper "github.com/trustyai-explainability/trustyai-dashboard/bff/internal/helpers"
 )
 
 func (app *App) RecoverPanic(next http.Handler) http.Handler {
@@ -23,6 +25,25 @@ func (app *App) RecoverPanic(next http.Handler) http.Handler {
 		}()
 
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *App) InjectRequestIdentity(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//skip use headers check if we are not on /api/v1 (i.e. we are on /healthcheck and / (static fe files) )
+		if !strings.HasPrefix(r.URL.Path, ApiPathPrefix) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		identity, error := app.kubernetesClientFactory.ExtractRequestIdentity(r.Header)
+		if error != nil {
+			app.badRequestResponse(w, r, error)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), constants.RequestIdentityKey, identity)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

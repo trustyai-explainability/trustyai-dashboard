@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/alexcreasy/modarch-quickstart/internal/constants"
 	"io"
 	"log/slog"
 	"net/http"
 	"slices"
+
+	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/constants"
 )
 
 func GetContextLoggerFromReq(r *http.Request) *slog.Logger {

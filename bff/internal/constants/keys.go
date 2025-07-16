@@ -7,6 +7,7 @@ type contextKey string
 const (
 	ModelRegistryHttpClientKey  contextKey = "ModelRegistryHttpClientKey"
 	NamespaceHeaderParameterKey contextKey = "namespace"
+	RequestIdentityKey          contextKey = "requestIdentityKey"
 
 	//Kubeflow authorization operates using custom authentication headers:
 	// Note: The functionality for `kubeflow-groups` is not fully operational at Kubeflow platform at this time
