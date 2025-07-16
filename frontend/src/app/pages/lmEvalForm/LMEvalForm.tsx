@@ -160,6 +160,7 @@ const LMEvalForm: React.FC = () => {
                   <SelectOption
                     value={option.value}
                     key={option.value}
+                    data-testid={`model-option-${option.value}`}
                     description={`${option.displayName} in ${option.namespace}`}
                   >
                     {option.label}

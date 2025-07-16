@@ -3,6 +3,45 @@ import { JestAssertionError } from 'expect';
 import 'core-js/actual/array/to-sorted';
 import { BooleanValues, RenderHookResultExt, createComparativeValue } from './testUtils/hooks';
 
+// Polyfill fetch for Jest environment
+global.fetch = jest.fn((input: RequestInfo | URL) => {
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+
+  // Mock different API endpoints
+  if (url.includes('/api/v1/models')) {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () =>
+        Promise.resolve({
+          data: [
+            {
+              value: 'model1',
+              label: 'Model 1',
+              displayName: 'Model 1',
+              namespace: 'default',
+              service: 'model1-service',
+            },
+            {
+              value: 'model2',
+              label: 'Model 2',
+              displayName: 'Model 2',
+              namespace: 'default',
+              service: 'model2-service',
+            },
+          ],
+        }),
+    } as Response);
+  }
+
+  // Default response for other endpoints
+  return Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({ data: [] }),
+  } as Response);
+});
+
 global.TextEncoder = TextEncoder;
 
 const tryExpect = (expectFn: () => void) => {

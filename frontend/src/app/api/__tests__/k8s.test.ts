@@ -2,7 +2,8 @@ import { LMEvalService, NamespaceService } from '~/app/api/service';
 import { k8sApi } from '~/app/api/k8s';
 
 // Mock fetch for testing
-global.fetch = jest.fn();
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
 describe('Kubernetes API', () => {
   beforeEach(() => {
@@ -12,14 +13,14 @@ describe('Kubernetes API', () => {
   describe('k8sApi', () => {
     it('should get namespaces', async () => {
       const mockResponse = { data: [{ name: 'project-1' }, { name: 'project-2' }] };
-      (fetch as jest.Mock).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       });
 
       const result = await k8sApi.getNamespaces();
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:8080/api/v1/namespaces',
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -37,14 +38,14 @@ describe('Kubernetes API', () => {
           items: [],
         },
       };
-      (fetch as jest.Mock).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       });
 
       const result = await k8sApi.listLMEvals('test-namespace');
       expect(result).toEqual(mockResponse);
-      expect(fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:8080/api/v1/evaluations?namespace=test-namespace',
         expect.any(Object),
       );
@@ -63,7 +64,7 @@ describe('Kubernetes API', () => {
           ],
         },
       };
-      (fetch as jest.Mock).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       });
@@ -76,7 +77,7 @@ describe('Kubernetes API', () => {
   describe('NamespaceService', () => {
     it('should get namespaces', async () => {
       const mockResponse = { data: [{ name: 'project-1' }, { name: 'project-2' }] };
-      (fetch as jest.Mock).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       });

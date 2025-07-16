@@ -3,7 +3,10 @@
 
 module.exports = {
   roots: ['<rootDir>/src/'],
-  testMatch: ['**/src/__tests__/unit/**/?(*.)+(spec|test).ts?(x)', '**/__tests__/?(*.)+(spec|test).ts?(x)'],
+  testMatch: [
+    '**/src/__tests__/unit/**/?(*.)+(spec|test).ts?(x)',
+    '**/__tests__/?(*.)+(spec|test).ts?(x)',
+  ],
 
   // Automatically clear mock calls and instances between every test
   clearMocks: true,
@@ -23,8 +26,15 @@ module.exports = {
   // The test environment that will be used for testing.
   testEnvironment: 'jest-environment-jsdom',
 
+  // Test environment options
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons'],
+  },
+
   // include projects from node_modules as required
-  transformIgnorePatterns: ['node_modules/(?!yaml|lodash-es|uuid|@patternfly|delaunator|mod-arch-shared)'],
+  transformIgnorePatterns: [
+    'node_modules/(?!yaml|lodash-es|uuid|@patternfly|delaunator|mod-arch-shared)',
+  ],
 
   // A list of paths to snapshot serializer modules Jest should use for snapshot testing
   snapshotSerializers: [],

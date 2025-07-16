@@ -4,7 +4,7 @@ import './LMEvalFormMocks';
 import * as React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LMEvalForm from '~/app/pages/lmEvalForm/LMEvalForm';
 
@@ -45,8 +45,13 @@ describe('LMEvalForm', () => {
     const modelToggle = screen.getByRole('button', { name: /model options menu/i });
     await user.click(modelToggle);
 
+    // Wait for model options to be loaded and rendered
+    await waitFor(() => {
+      expect(within(document.body).getByText('Model 1')).toBeInTheDocument();
+    });
+
     // Select a model
-    const modelOption = screen.getByText('Model 1');
+    const modelOption = within(document.body).getByText('Model 1');
     await user.click(modelOption);
 
     // Verify the selection is reflected in the footer
@@ -181,8 +186,13 @@ describe('LMEvalForm', () => {
     await user.click(modelToggle);
     expect(modelToggle).toHaveAttribute('aria-expanded', 'true');
 
+    // Wait for model options to be loaded
+    await waitFor(() => {
+      expect(within(document.body).getByText('Model 1')).toBeInTheDocument();
+    });
+
     // Close by clicking outside or selecting an option
-    const modelOption = screen.getByText('Model 1');
+    const modelOption = within(document.body).getByText('Model 1');
     await user.click(modelOption);
 
     await waitFor(() => {
@@ -196,10 +206,16 @@ describe('LMEvalForm', () => {
     const modelToggle = screen.getByRole('button', { name: /model options menu/i });
     await user.click(modelToggle);
 
-    expect(screen.getByText('Model 1')).toBeInTheDocument();
-    expect(screen.getByText('Model 2')).toBeInTheDocument();
-    expect(screen.getByText('Model 1 in default')).toBeInTheDocument();
-    expect(screen.getByText('Model 2 in default')).toBeInTheDocument();
+    // Wait for model options to be loaded
+    await waitFor(() => {
+      expect(within(document.body).getByText('Model 1')).toBeInTheDocument();
+      expect(within(document.body).getByText('Model 2')).toBeInTheDocument();
+    });
+
+    expect(within(document.body).getByText('Model 1')).toBeInTheDocument();
+    expect(within(document.body).getByText('Model 2')).toBeInTheDocument();
+    expect(await screen.findByText('Model 1 in default')).toBeInTheDocument();
+    expect(await screen.findByText('Model 2 in default')).toBeInTheDocument();
   });
 
   it('should display model type options with correct descriptions', async () => {

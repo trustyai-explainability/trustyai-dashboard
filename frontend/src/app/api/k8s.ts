@@ -28,7 +28,9 @@ export interface LMEvalCreateRequest {
 
 // API base configuration
 const API_BASE =
-  process.env.NODE_ENV === 'development' ? 'http://localhost:8080/api/v1' : '/api/v1';
+  process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+    ? 'http://localhost:8080/api/v1'
+    : '/api/v1';
 
 // Default headers for kubeflow authentication
 const getDefaultHeaders = (): Record<string, string> => ({
