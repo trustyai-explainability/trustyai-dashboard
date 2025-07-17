@@ -9,8 +9,8 @@ import { parseEvaluationResults } from './utils';
 import useLMEvalResult from './useLMEvalResult';
 
 const LMEvalResult: React.FC = () => {
-  const { evaluationName } = useParams<{ evaluationName: string }>();
-  const lmEvalResult = useLMEvalResult(evaluationName);
+  const { evaluationName, namespace } = useParams<{ evaluationName: string; namespace: string }>();
+  const lmEvalResult = useLMEvalResult(evaluationName, namespace);
   const evaluation = lmEvalResult.data;
   const results = React.useMemo(
     () => (evaluation?.status?.results ? parseEvaluationResults(evaluation.status.results) : []),

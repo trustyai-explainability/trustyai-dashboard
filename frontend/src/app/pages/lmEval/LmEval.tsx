@@ -18,12 +18,13 @@ import LMEvalLoading from './components/LMEvalLoading';
 
 const title = 'Model evaluation runs';
 const description =
-  'Select a project to view its model evaluation runs, or start a new evaluation run. Evaluation runs help determine a model’s performance by testing it against selected evaluation benchmarks called tasks.';
+  "Select a project to view its model evaluation runs, or start a new evaluation run. Evaluation runs help determine a model's performance by testing it against selected evaluation benchmarks called tasks.";
 
 const LMEval = (): React.ReactElement => {
   const navigate = useNavigate();
   const { lmEval, project, preferredProject, projects } = React.useContext(LMEvalContext);
   const [lmEvalData, lmEvalLoaded, lmEvalLoadError] = lmEval;
+  const safeLmEvalData = Array.isArray(lmEvalData) ? lmEvalData : [];
 
   const emptyState = (
     <EmptyState
@@ -47,7 +48,7 @@ const LMEval = (): React.ReactElement => {
 
   return (
     <ApplicationsPage
-      empty={lmEvalData.length === 0}
+      empty={safeLmEvalData.length === 0}
       emptyStatePage={emptyState}
       title={<EvaluationTitleIcon title={title} />}
       description={description}
@@ -72,7 +73,7 @@ const LMEval = (): React.ReactElement => {
         )
       }
     >
-      <LMEvalListView lmEval={lmEvalData} />
+      <LMEvalListView lmEval={safeLmEvalData} />
     </ApplicationsPage>
   );
 };

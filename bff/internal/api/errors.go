@@ -3,9 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/alexcreasy/modarch-quickstart/internal/integrations"
 	"net/http"
 	"strconv"
+
+	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/integrations"
 )
 
 type HTTPError struct {

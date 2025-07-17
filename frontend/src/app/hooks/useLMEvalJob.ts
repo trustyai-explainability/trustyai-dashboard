@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { CustomWatchK8sResult, LMEvalKind } from '~/app/types';
+import { LMEvalService } from '~/app/api';
 
 /**
- * Simple mock implementation of useLMEvalJob hook
- * Returns mock data from mockApi/lmEvalResults
+ * Hook to fetch LMEval resources from the API
+ * Uses the real BFF backend instead of mock data
  */
 export const useLMEvalJob = (namespace: string): CustomWatchK8sResult<LMEvalKind[]> => {
   const [data, setData] = useState<LMEvalKind[]>([]);
@@ -11,26 +12,21 @@ export const useLMEvalJob = (namespace: string): CustomWatchK8sResult<LMEvalKind
   const [loadError, setLoadError] = useState<Error | undefined>(undefined);
 
   useEffect(() => {
-    // Simulate API loading delay
-    const timer = setTimeout(async () => {
+    setLoaded(false);
+    setLoadError(undefined);
+
+    const fetchData = async () => {
       try {
-        // Import the proper mock data from mockApi
-        const { mockLMEvalResults } = await import('~/app/mockApi/lmEvalResults');
-
-        const filteredData = namespace
-          ? mockLMEvalResults.filter((item) => item.metadata.namespace === namespace)
-          : mockLMEvalResults;
-
-        setData(filteredData);
+        const evaluations = await LMEvalService.getEvaluations(namespace);
+        setData(evaluations);
         setLoaded(true);
-        setLoadError(undefined);
       } catch (error) {
         setLoadError(error instanceof Error ? error : new Error('Unknown error'));
         setLoaded(true);
       }
-    }, 500);
+    };
 
-    return () => clearTimeout(timer);
+    fetchData();
   }, [namespace]);
 
   return [data, loaded, loadError];
