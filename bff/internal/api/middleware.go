@@ -54,11 +54,23 @@ func (app *App) EnableCORS(next http.Handler) http.Handler {
 		return next
 	}
 
+	allowedHeaders := []string{
+		constants.KubeflowUserIDHeader,
+		constants.KubeflowUserGroupsIdHeader,
+		"Content-Type",
+		"Authorization",
+	}
+
+	// Add OAuth proxy header if configured
+	if app.config.OAuthProxyTokenHeader != "" {
+		allowedHeaders = append(allowedHeaders, app.config.OAuthProxyTokenHeader)
+	}
+
 	c := cors.New(cors.Options{
 		AllowedOrigins:     app.config.AllowedOrigins,
 		AllowCredentials:   true,
 		AllowedMethods:     []string{"GET", "PUT", "POST", "PATCH", "DELETE"},
-		AllowedHeaders:     []string{constants.KubeflowUserIDHeader, constants.KubeflowUserGroupsIdHeader, "Content-Type"},
+		AllowedHeaders:     allowedHeaders,
 		Debug:              app.config.LogLevel == slog.LevelDebug,
 		OptionsPassthrough: false,
 	})

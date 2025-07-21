@@ -1,0 +1,331 @@
+openapi: 3.1.0
+info:
+  title: TrustyAI Dashboard API
+  version: 1.0.0
+  description: API for TrustyAI Model Evaluation Dashboard - Backend for Frontend (BFF) service
+
+servers:
+  - url: /api/v1
+    description: API v1
+
+paths:
+  /user:
+    get:
+      summary: Get current user information
+      description: Retrieves current user information and permissions
+      responses:
+        "200":
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Bad request - missing authentication headers
+        "500":
+          description: Internal server error
+
+  /namespaces:
+    get:
+      summary: List accessible namespaces
+      description: Lists all namespaces that the current user has access to
+      responses:
+        "200":
+          description: Namespaces retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NamespaceListResponse"
+        "400":
+          description: Bad request - missing authentication headers
+        "500":
+          description: Internal server error
+
+  /evaluations:
+    get:
+      summary: List model evaluations
+      description: Lists all model evaluations in the specified namespace
+      parameters:
+        - name: namespace
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Kubernetes namespace to list evaluations from
+      responses:
+        "200":
+          description: Evaluations retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationListResponse"
+        "400":
+          description: Bad request - missing namespace parameter or authentication
+        "403":
+          description: Forbidden - user lacks permission to access namespace
+        "500":
+          description: Internal server error
+
+    post:
+      summary: Create a new model evaluation
+      description: Creates a new model evaluation in the specified namespace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEvaluationRequest"
+      responses:
+        "201":
+          description: Evaluation created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationResponse"
+        "400":
+          description: Bad request - invalid evaluation configuration
+        "403":
+          description: Forbidden - user lacks permission to create evaluations
+        "500":
+          description: Internal server error
+
+  /evaluations/{name}:
+    get:
+      summary: Get model evaluation by name
+      description: Retrieves a specific model evaluation by name
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Name of the evaluation to retrieve
+      responses:
+        "200":
+          description: Evaluation retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationResponse"
+        "404":
+          description: Evaluation not found
+        "500":
+          description: Internal server error
+
+    delete:
+      summary: Delete model evaluation
+      description: Deletes a specific model evaluation by name
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Name of the evaluation to delete
+      responses:
+        "204":
+          description: Evaluation deleted successfully
+        "404":
+          description: Evaluation not found
+        "500":
+          description: Internal server error
+
+  /models:
+    get:
+      summary: List available models
+      description: Lists all available models for evaluation
+      responses:
+        "200":
+          description: Models retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelListResponse"
+        "500":
+          description: Internal server error
+
+components:
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      properties:
+        userID:
+          type: string
+          description: User identifier (email or username)
+        clusterAdmin:
+          type: boolean
+          description: Whether the user has cluster admin privileges
+      required:
+        - userID
+        - clusterAdmin
+
+    NamespaceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Namespace"
+
+    Namespace:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Kubernetes namespace name
+        displayName:
+          type: string
+          description: Human-readable display name
+        description:
+          type: string
+          description: Namespace description
+      required:
+        - name
+
+    EvaluationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Evaluation"
+
+    EvaluationResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Evaluation"
+
+    Evaluation:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+        metadata:
+          $ref: "#/components/schemas/Metadata"
+        spec:
+          $ref: "#/components/schemas/EvaluationSpec"
+        status:
+          $ref: "#/components/schemas/EvaluationStatus"
+      required:
+        - apiVersion
+        - kind
+        - metadata
+        - spec
+
+    Metadata:
+      type: object
+      properties:
+        name:
+          type: string
+        namespace:
+          type: string
+        creationTimestamp:
+          type: string
+          format: date-time
+      required:
+        - name
+
+    EvaluationSpec:
+      type: object
+      properties:
+        model:
+          type: string
+          description: Model name to evaluate
+        task:
+          type: string
+          description: Evaluation task type
+        arguments:
+          type: object
+          description: Additional arguments for the evaluation
+      required:
+        - model
+        - task
+
+    EvaluationStatus:
+      type: object
+      properties:
+        phase:
+          type: string
+          enum: [Pending, Running, Completed, Failed]
+        results:
+          type: object
+          description: Evaluation results (when completed)
+        message:
+          type: string
+          description: Status message
+
+    CreateEvaluationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name for the evaluation
+        model:
+          type: string
+          description: Model name to evaluate
+        task:
+          type: string
+          description: Evaluation task type
+        arguments:
+          type: object
+          description: Additional arguments for the evaluation
+      required:
+        - name
+        - model
+        - task
+
+    ModelListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Model"
+
+    Model:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Model name
+        displayName:
+          type: string
+          description: Human-readable display name
+        description:
+          type: string
+          description: Model description
+        version:
+          type: string
+          description: Model version
+      required:
+        - name
+
+  securitySchemes:
+    OAuthProxy:
+      type: apiKey
+      in: header
+      name: X-forward-access-token
+      description: OAuth proxy injects Kubernetes access tokens via this header
+    BearerToken:
+      type: http
+      scheme: bearer
+      description: Bearer token authentication for development
+    KubeflowUser:
+      type: apiKey
+      in: header
+      name: kubeflow-userid
+      description: User identifier header for Kubeflow authentication
+
+security:
+  - OAuthProxy: []
+  - BearerToken: []
+  - KubeflowUser: []

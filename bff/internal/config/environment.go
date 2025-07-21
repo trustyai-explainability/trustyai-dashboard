@@ -13,6 +13,11 @@ const (
 	// AuthMethodUser uses a user-provided Bearer token for authentication.
 	AuthMethodUser = "user_token"
 
+	// AuthMethodOAuthProxy uses OAuth proxy sidecar authentication.
+	// This is the production mode for ODH integration where the OAuth proxy
+	// injects Kubernetes user tokens via X-forward-access-token header.
+	AuthMethodOAuthProxy = "oauth_proxy"
+
 	// AuthMethodMock uses a mock client for local development without requiring a Kubernetes cluster.
 	AuthMethodMock = "mock"
 
@@ -22,6 +27,9 @@ const (
 	// DefaultAuthTokenPrefix is the prefix used in the Authorization header.
 	// note: the space here is intentional, as the prefix is "Bearer " (with a space).
 	DefaultAuthTokenPrefix = "Bearer "
+
+	// DefaultOAuthProxyTokenHeader is the header used by OAuth proxy to inject access tokens.
+	DefaultOAuthProxyTokenHeader = "X-forward-access-token"
 )
 
 type EnvConfig struct {
@@ -32,7 +40,7 @@ type EnvConfig struct {
 
 	// ─── AUTH ───────────────────────────────────────────────────
 	// Specifies the authentication method used by the server.
-	// Valid values: "internal" or "user_token"
+	// Valid values: "internal", "user_token", "oauth_proxy", or "mock"
 	AuthMethod string
 
 	// Header used to extract the authentication token.
@@ -42,4 +50,8 @@ type EnvConfig struct {
 	// Optional prefix to strip from the token header value.
 	// Default is "Bearer ", can be set to empty if the token is sent without a prefix.
 	AuthTokenPrefix string
+
+	// OAuth Proxy specific configuration
+	// Header used to extract the access token from OAuth proxy sidecar
+	OAuthProxyTokenHeader string
 }
