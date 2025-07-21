@@ -35,7 +35,11 @@ const API_BASE =
 // Default headers for kubeflow authentication
 const getDefaultHeaders = (): Record<string, string> => ({
   'Content-Type': 'application/json',
-  'kubeflow-userid': 'test-user@example.com', // For development - in ODH this will be injected
+  // For development and testing with mock authentication, include the required header
+  // In production, this will be injected by OAuth proxy
+  ...((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') && {
+    'kubeflow-userid': 'test-user@example.com',
+  }),
 });
 
 // Generic API client for making requests

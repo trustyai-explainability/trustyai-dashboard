@@ -26,6 +26,10 @@ func NewKubernetesClientFactory(cfg config.EnvConfig, logger *slog.Logger) (Kube
 		k8sFactory := NewTokenClientFactory(logger, cfg)
 		return k8sFactory, nil
 
+	case config.AuthMethodOAuthProxy:
+		k8sFactory := NewOAuthProxyClientFactory(logger, cfg)
+		return k8sFactory, nil
+
 	case config.AuthMethodMock:
 		k8sFactory := NewMockClientFactory(logger)
 		return k8sFactory, nil
