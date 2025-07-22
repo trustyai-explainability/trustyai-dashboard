@@ -94,6 +94,7 @@
     "whatwg-fetch": "^3.6.20"
   },
   "dependencies": {
+    "@module-federation/enhanced": "^0.17.0",
     "@patternfly/react-core": "^6.0.0",
     "@patternfly/react-icons": "^6.0.0",
     "@patternfly/react-styles": "^6.0.0",

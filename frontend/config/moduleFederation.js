@@ -23,7 +23,7 @@ const moduleFederationConfig = {
     },
   },
   exposes: {
-    './extensions': './src/odh/extensions',
+    './extensions': './odh/extensions',
   },
   runtime: false,
   dts: false,
