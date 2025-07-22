@@ -7,19 +7,27 @@ const moduleFederationConfig = {
   shared: {
     react: {
       singleton: true,
-      requiredVersion: '^18.0.0',
+      eager: true,
+      requiredVersion: false,
     },
     'react-dom': {
       singleton: true,
-      requiredVersion: '^18.0.0',
+      eager: true,
+      requiredVersion: false,
+    },
+    'react-router': {
+      singleton: true,
+      eager: true,
+      requiredVersion: false,
+    },
+    'react-router-dom': {
+      singleton: true,
+      eager: true,
+      requiredVersion: false,
     },
     '@patternfly/react-core': {
       singleton: true,
-      requiredVersion: '^6.0.0',
-    },
-    '@odh-dashboard/plugin-core': {
-      singleton: true,
-      requiredVersion: '0.0.0',
+      eager: true,
     },
   },
   exposes: {
@@ -27,6 +35,9 @@ const moduleFederationConfig = {
   },
   runtime: false,
   dts: false,
+  experiments: {
+    federationRuntime: 'hoisted',
+  },
 };
 
 module.exports = {
