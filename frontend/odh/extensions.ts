@@ -18,11 +18,11 @@ const extensions: (NavExtension | RouteExtension | AreaExtension)[] = [
       required: [PLUGIN_LM_EVAL],
     },
     properties: {
-      id: 'lm-eval',
-      title: 'Model Evaluations',
-      href: '/modelEvaluations',
+      id: 'lm-eval-mf',
+      title: 'Model Evaluations MF',
+      href: '/lm-eval',
       section: 'models',
-      path: '/modelEvaluations/*',
+      path: '/lm-eval/*',
     },
   },
   {
@@ -31,7 +31,7 @@ const extensions: (NavExtension | RouteExtension | AreaExtension)[] = [
       required: [PLUGIN_LM_EVAL],
     },
     properties: {
-      path: '/modelEvaluations/*',
+      path: '/lm-eval/*',
       component: () => import('./LMEvalWrapper'),
     },
   },
