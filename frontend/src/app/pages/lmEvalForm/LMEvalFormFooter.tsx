@@ -57,7 +57,7 @@ const LMEvalFormFooter: React.FC<LMEvalFormFooterProps> = ({ data, k8sNameData }
       const createdEvaluation = await LMEvalService.createEvaluation(namespace, createRequest);
 
       // Navigate to the evaluation results page
-      navigate(`/modelEvaluations/${namespace}/evaluations/${createdEvaluation.metadata.name}`, {
+      navigate(`/model-evaluations/${namespace}/evaluations/${createdEvaluation.metadata.name}`, {
         state: {
           message: `Evaluation "${data.evaluationName}" created successfully and is starting.`,
           type: 'success',
@@ -97,7 +97,7 @@ const LMEvalFormFooter: React.FC<LMEvalFormFooterProps> = ({ data, k8sNameData }
               variant="link"
               data-testid="lm-evaluation-cancel-button"
               onClick={() => {
-                navigate('/modelEvaluations');
+                navigate('/model-evaluations');
               }}
             >
               Cancel

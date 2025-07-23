@@ -55,7 +55,7 @@ const LMEval = (): React.ReactElement => {
       loadError={lmEvalLoadError}
       loaded={lmEvalLoaded}
       headerContent={
-        <ProjectSelectorNavigator getRedirectPath={(ns: string) => `/modelEvaluations/${ns}`} />
+        <ProjectSelectorNavigator getRedirectPath={(ns: string) => `/model-evaluations/${ns}`} />
       }
       provideChildrenPadding
       loadingContent={
@@ -66,7 +66,7 @@ const LMEval = (): React.ReactElement => {
             onCancel={() => {
               const redirectProject = preferredProject ?? projects?.[0];
               if (redirectProject) {
-                navigate(`/modelEvaluations/${redirectProject.metadata.name}`);
+                navigate(`/model-evaluations/${redirectProject.metadata.name}`);
               }
             }}
           />

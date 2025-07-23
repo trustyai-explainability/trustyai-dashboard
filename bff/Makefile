@@ -52,6 +52,10 @@ run: fmt vet envtest ## Runs the project.
 	ENVTEST_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" \
 	go run ./cmd --port=$(PORT) --static-assets-dir=$(STATIC_ASSETS_DIR) --log-level=$(LOG_LEVEL) --allowed-origins=$(ALLOWED_ORIGINS)
 
+.PHONY: dev
+dev: ## Runs the project in development mode with mock auth and CORS for ODH dashboard.
+	go run ./cmd --port=8080 --auth-method=mock --allowed-origins=http://localhost:4010,http://localhost:9000 --log-level=debug
+
 ##@ Dependencies
 
 ## Location to install dependencies to

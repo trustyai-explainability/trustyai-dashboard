@@ -15,7 +15,7 @@ const EvaluateModelButton: React.FC = () => {
       data-testid="evaluate-model-button"
       variant="primary"
       isAriaDisabled={!project}
-      onClick={() => project && navigate(`/modelEvaluations/${project.metadata.name}/evaluate`)}
+      onClick={() => project && navigate(`/model-evaluations/${project.metadata.name}/evaluate`)}
     >
       Start evaluation run
     </Button>

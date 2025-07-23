@@ -1,18 +1,21 @@
 package main
 
 import (
+	"testing"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"testing"
+
+	helper "github.com/trustyai-explainability/trustyai-dashboard/bff/internal/helpers"
 )
 
-var _ = Describe("newOriginParser helper function", func() {
+var _ = Describe("NewOriginParser helper function", func() {
 	var originParser func(s string) error
 	var allowList []string
 
 	BeforeEach(func() {
 		allowList = []string{}
-		originParser = newOriginParser(&allowList, "")
+		originParser = helper.NewOriginParser(&allowList, "")
 	})
 
 	It("should parse a valid string list with 1 item", func() {

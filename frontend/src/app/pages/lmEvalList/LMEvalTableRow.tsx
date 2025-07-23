@@ -26,7 +26,7 @@ const LMEvalTableRow: React.FC<LMEvalTableRowType> = ({ lmEval, onDeleteLMEval }
         {currentState === LMEvalState.COMPLETE ? (
           <Link
             data-testid={`lm-eval-link-${lmEval.metadata.name}`}
-            to={`/modelEvaluations/${lmEval.metadata.namespace}/evaluations/${lmEval.metadata.name}`}
+            to={`/model-evaluations/${lmEval.metadata.namespace}/evaluations/${lmEval.metadata.name}`}
           >
             {getDisplayNameFromK8sResource(lmEval)}
           </Link>
