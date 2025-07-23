@@ -13,19 +13,20 @@ import (
 
 	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/api"
 	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/config"
+	helper "github.com/trustyai-explainability/trustyai-dashboard/bff/internal/helpers"
 )
 
 func main() {
 	fmt.Println("BFF v7")
 	var cfg config.EnvConfig
-	flag.IntVar(&cfg.Port, "port", getEnvAsInt("PORT", 8080), "API server port")
+	flag.IntVar(&cfg.Port, "port", helper.GetEnvAsInt("PORT", 8080), "API server port")
 	flag.StringVar(&cfg.StaticAssetsDir, "static-assets-dir", "./static", "Configure frontend static assets root directory")
-	flag.TextVar(&cfg.LogLevel, "log-level", parseLevel(getEnvAsString("LOG_LEVEL", "DEBUG")), "Sets server log level, possible values: error, warn, info, debug")
-	flag.Func("allowed-origins", "Sets allowed origins for CORS purposes, accepts a comma separated list of origins or * to allow all, default none", newOriginParser(&cfg.AllowedOrigins, getEnvAsString("ALLOWED_ORIGINS", "")))
+	flag.TextVar(&cfg.LogLevel, "log-level", helper.ParseLevel(helper.GetEnvAsString("LOG_LEVEL", "DEBUG")), "Sets server log level, possible values: error, warn, info, debug")
+	flag.Func("allowed-origins", "Sets allowed origins for CORS purposes, accepts a comma separated list of origins or * to allow all, default none", helper.NewOriginParser(&cfg.AllowedOrigins, helper.GetEnvAsString("ALLOWED_ORIGINS", "")))
 	flag.StringVar(&cfg.AuthMethod, "auth-method", "internal", "Authentication method (internal, user_token, oauth_proxy, or mock)")
-	flag.StringVar(&cfg.AuthTokenHeader, "auth-token-header", getEnvAsString("AUTH_TOKEN_HEADER", config.DefaultAuthTokenHeader), "Header used to extract the token (e.g., Authorization)")
-	flag.StringVar(&cfg.AuthTokenPrefix, "auth-token-prefix", getEnvAsString("AUTH_TOKEN_PREFIX", config.DefaultAuthTokenPrefix), "Prefix used in the token header (e.g., 'Bearer ')")
-	flag.StringVar(&cfg.OAuthProxyTokenHeader, "oauth-proxy-token-header", getEnvAsString("OAUTH_PROXY_TOKEN_HEADER", config.DefaultOAuthProxyTokenHeader), "Header containing access token from OAuth proxy (e.g., X-forward-access-token)")
+	flag.StringVar(&cfg.AuthTokenHeader, "auth-token-header", helper.GetEnvAsString("AUTH_TOKEN_HEADER", config.DefaultAuthTokenHeader), "Header used to extract the token (e.g., Authorization)")
+	flag.StringVar(&cfg.AuthTokenPrefix, "auth-token-prefix", helper.GetEnvAsString("AUTH_TOKEN_PREFIX", config.DefaultAuthTokenPrefix), "Prefix used in the token header (e.g., 'Bearer ')")
+	flag.StringVar(&cfg.OAuthProxyTokenHeader, "oauth-proxy-token-header", helper.GetEnvAsString("OAUTH_PROXY_TOKEN_HEADER", config.DefaultOAuthProxyTokenHeader), "Header containing access token from OAuth proxy (e.g., X-forward-access-token)")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
