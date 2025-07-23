@@ -55,4 +55,4 @@ func NewOriginParser(allowList *[]string, defaultVal string) func(s string) erro
 
 		return nil
 	}
-} 
+}
