@@ -75,11 +75,11 @@ func convertServiceToModelOption(service kubernetes.ServiceDetails, namespace st
 	if displayName == "" {
 		displayName = service.Name
 	}
-	
+
 	// Construct service URL
-	serviceURL := fmt.Sprintf("http://%s.%s.svc.cluster.local:%d", 
+	serviceURL := fmt.Sprintf("http://%s.%s.svc.cluster.local:%d",
 		service.Name, namespace, service.HTTPPort)
-	
+
 	return models.ModelOption{
 		Value:       fmt.Sprintf("%s-%s", service.Name, namespace),
 		Label:       displayName,

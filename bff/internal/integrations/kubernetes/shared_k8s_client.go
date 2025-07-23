@@ -121,23 +121,23 @@ func isModelServingService(service *corev1.Service) bool {
 	// Check for KServe services
 	if labels != nil {
 		if labels["serving.kserve.io/inferenceservice"] != "" ||
-		   labels["component"] == "predictor" ||
-		   labels["app"] == "kserve" {
+			labels["component"] == "predictor" ||
+			labels["app"] == "kserve" {
 			return true
 		}
 	}
 
 	// Check for ModelMesh services
-	if serviceName == "modelmesh-serving" || 
-	   serviceName == "model-mesh" ||
-	   (labels != nil && labels["app"] == "modelmesh") {
+	if serviceName == "modelmesh-serving" ||
+		serviceName == "model-mesh" ||
+		(labels != nil && labels["app"] == "modelmesh") {
 		return true
 	}
 
 	// Check for OpenShift AI/ODH model serving
 	if serviceName == "model-registry-service" ||
-	   serviceName == "model-registry" ||
-	   serviceName == "odh-model-controller" {
+		serviceName == "model-registry" ||
+		serviceName == "odh-model-controller" {
 		return true
 	}
 
@@ -147,38 +147,38 @@ func isModelServingService(service *corev1.Service) bool {
 	}
 
 	// Check for MLflow services
-	if serviceName == "mlflow-server" || 
-	   serviceName == "mlflow-tracking" ||
-	   (labels != nil && labels["app"] == "mlflow") {
+	if serviceName == "mlflow-server" ||
+		serviceName == "mlflow-tracking" ||
+		(labels != nil && labels["app"] == "mlflow") {
 		return true
 	}
 
 	// Check for TorchServe
-	if serviceName == "torchserve" || 
-	   (labels != nil && labels["app"] == "torchserve") {
+	if serviceName == "torchserve" ||
+		(labels != nil && labels["app"] == "torchserve") {
 		return true
 	}
 
 	// Check for NVIDIA Triton
 	if serviceName == "triton-inference-server" ||
-	   (labels != nil && labels["app"] == "triton") {
+		(labels != nil && labels["app"] == "triton") {
 		return true
 	}
 
 	// Check for generic ML/AI services by annotations
 	if annotations != nil {
 		if annotations["serving.kubeflow.org/inferenceservice"] != "" ||
-		   annotations["ai.openshift.io/model-serving"] != "" ||
-		   annotations["opendatahub.io/model-serving"] != "" {
+			annotations["ai.openshift.io/model-serving"] != "" ||
+			annotations["opendatahub.io/model-serving"] != "" {
 			return true
 		}
 	}
 
 	// Check for services with model serving in the name
-	if strings.Contains(serviceName, "model") && 
-	   (strings.Contains(serviceName, "serve") || 
-	    strings.Contains(serviceName, "infer") ||
-	    strings.Contains(serviceName, "predict")) {
+	if strings.Contains(serviceName, "model") &&
+		(strings.Contains(serviceName, "serve") ||
+			strings.Contains(serviceName, "infer") ||
+			strings.Contains(serviceName, "predict")) {
 		return true
 	}
 
@@ -194,10 +194,10 @@ func buildModelServingServiceDetails(service *corev1.Service, logger *slog.Logge
 	// Try to find the main HTTP port (more flexible than just http-api)
 	var httpPort int32
 	hasHTTPPort := false
-	
+
 	// Look for common HTTP port names
 	httpPortNames := []string{"http-api", "http", "web", "serving", "inference", "predict"}
-	
+
 	for _, portName := range httpPortNames {
 		for _, port := range service.Spec.Ports {
 			if port.Name == portName {
@@ -215,8 +215,8 @@ func buildModelServingServiceDetails(service *corev1.Service, logger *slog.Logge
 	if !hasHTTPPort {
 		for _, port := range service.Spec.Ports {
 			// Common HTTP ports
-			if port.Port == 80 || port.Port == 8080 || port.Port == 8000 || 
-			   port.Port == 5000 || port.Port == 9000 {
+			if port.Port == 80 || port.Port == 8080 || port.Port == 8000 ||
+				port.Port == 5000 || port.Port == 9000 {
 				httpPort = port.Port
 				hasHTTPPort = true
 				break
@@ -228,7 +228,7 @@ func buildModelServingServiceDetails(service *corev1.Service, logger *slog.Logge
 	if !hasHTTPPort && len(service.Spec.Ports) > 0 {
 		httpPort = service.Spec.Ports[0].Port
 		hasHTTPPort = true
-		logger.Warn("Using first available port for model serving service", 
+		logger.Warn("Using first available port for model serving service",
 			"serviceName", service.Name, "port", httpPort)
 	}
 
@@ -243,14 +243,14 @@ func buildModelServingServiceDetails(service *corev1.Service, logger *slog.Logge
 	// Extract display name and description
 	displayName := service.Name
 	description := "Model serving service"
-	
+
 	if service.Annotations != nil {
 		if dn := service.Annotations["opendatahub.io/display-name"]; dn != "" {
 			displayName = dn
 		} else if dn := service.Annotations["serving.kubeflow.org/display-name"]; dn != "" {
 			displayName = dn
 		}
-		
+
 		if desc := service.Annotations["opendatahub.io/description"]; desc != "" {
 			description = desc
 		} else if desc := service.Annotations["serving.kubeflow.org/description"]; desc != "" {
@@ -348,7 +348,7 @@ func (kc *SharedClientLogic) CreateLMEval(ctx context.Context, identity *Request
 
 	// Get the base config from the existing client
 	baseConfig := kc.Client.CoreV1().RESTClient().Get().URL()
-	
+
 	// Create dynamic client config using the same TLS settings as the main client
 	config := &rest.Config{
 		Host:        baseConfig.Scheme + "://" + baseConfig.Host,
@@ -412,28 +412,28 @@ func validateLMEval(lmEval *models.LMEvalKind) error {
 	if lmEval == nil {
 		return fmt.Errorf("LMEval object cannot be nil")
 	}
-	
+
 	if lmEval.Metadata.Name == "" {
 		return fmt.Errorf("LMEval name is required")
 	}
-	
+
 	if lmEval.Metadata.Namespace == "" {
 		return fmt.Errorf("LMEval namespace is required")
 	}
-	
+
 	if lmEval.Spec.Model == "" {
 		return fmt.Errorf("LMEval model is required")
 	}
-	
+
 	if len(lmEval.Spec.TaskList.TaskNames) == 0 {
 		return fmt.Errorf("LMEval must have at least one task")
 	}
-	
+
 	// Validate Kubernetes name format
 	if !isValidKubernetesName(lmEval.Metadata.Name) {
 		return fmt.Errorf("LMEval name must be a valid Kubernetes resource name")
 	}
-	
+
 	return nil
 }
 
@@ -442,19 +442,19 @@ func isValidKubernetesName(name string) bool {
 	if len(name) == 0 || len(name) > 253 {
 		return false
 	}
-	
+
 	// Check for valid characters (lowercase letters, numbers, hyphens)
 	for _, r := range name {
 		if !((r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-') {
 			return false
 		}
 	}
-	
+
 	// Must start and end with alphanumeric
 	if name[0] == '-' || name[len(name)-1] == '-' {
 		return false
 	}
-	
+
 	return true
 }
 
