@@ -10,11 +10,7 @@ const LMEvalRoutes: React.FC = () => (
   <ProjectsRoutes>
     <Route
       path="/:namespace?/*"
-      element={
-        <LMEvalCoreLoader
-          getInvalidRedirectPath={(namespace) => `/modelEvaluations/${namespace}`}
-        />
-      }
+      element={<LMEvalCoreLoader getInvalidRedirectPath={(namespace) => `./${namespace}`} />}
     >
       <Route index element={<LMEval />} />
       <Route path="evaluate" element={<LMEvalForm />} />
