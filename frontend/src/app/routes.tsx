@@ -8,14 +8,14 @@ import { Settings } from './pages/settings/Settings';
 export const useNavData = (): NavDataItem[] => [
   {
     label: 'Model Evaluations',
-    path: '/modelEvaluations',
+    path: '/model-evaluations',
   },
 ];
 
 const AppRoutes: React.FC = () => (
   <Routes>
-    <Route path="/" element={<Navigate to="/modelEvaluations" replace />} />
-    <Route path="/modelEvaluations/*" element={<LMEvalRoutes />} />
+    <Route path="/" element={<Navigate to="/model-evaluations" replace />} />
+    <Route path="/model-evaluations/*" element={<LMEvalRoutes />} />
     <Route path="*" element={<NotFound />} />
     <Route path="/settings/*" element={<Settings />} />
   </Routes>

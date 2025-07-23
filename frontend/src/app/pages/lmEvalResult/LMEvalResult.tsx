@@ -19,7 +19,7 @@ const LMEvalResult: React.FC = () => {
 
   const breadcrumb = (
     <Breadcrumb>
-      <BreadcrumbItem render={() => <Link to="/">Model evaluations runs</Link>} />
+      <BreadcrumbItem render={() => <Link to="/model-evaluations">Model evaluations runs</Link>} />
       <BreadcrumbItem isActive>{evaluation?.metadata.name || evaluationName}</BreadcrumbItem>
     </Breadcrumb>
   );
