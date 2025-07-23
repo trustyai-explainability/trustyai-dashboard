@@ -1,6 +1,6 @@
 import type { NavExtension, RouteExtension, AreaExtension } from './types';
 
-const reliantAreas = ['model-evaluations'];
+const reliantAreas = ['lm-eval'];
 const PLUGIN_LM_EVAL = 'lm-eval-plugin';
 
 const extensions: (NavExtension | RouteExtension | AreaExtension)[] = [
