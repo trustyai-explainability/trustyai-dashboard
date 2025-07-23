@@ -10,7 +10,6 @@ export const useNavData = (): NavDataItem[] => [
     label: 'Model Evaluations',
     path: '/modelEvaluations',
   },
-  { label: 'Settings', children: [{ label: 'Model Evaluations', path: '/settings' }] },
 ];
 
 const AppRoutes: React.FC = () => (
