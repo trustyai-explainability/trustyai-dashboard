@@ -58,6 +58,11 @@ func (m *MockKubernetesClient) GetServiceDetails(ctx context.Context, namespace 
 	return args.Get(0).([]kubernetes.ServiceDetails), args.Error(1)
 }
 
+func (m *MockKubernetesClient) GetModelServingServices(ctx context.Context, namespace string) ([]kubernetes.ServiceDetails, error) {
+	args := m.Called(ctx, namespace)
+	return args.Get(0).([]kubernetes.ServiceDetails), args.Error(1)
+}
+
 func (m *MockKubernetesClient) GetNamespaces(ctx context.Context, identity *kubernetes.RequestIdentity) ([]corev1.Namespace, error) {
 	args := m.Called(ctx, identity)
 	return args.Get(0).([]corev1.Namespace), args.Error(1)

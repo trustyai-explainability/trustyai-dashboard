@@ -1,6 +1,6 @@
 import type { NavExtension, RouteExtension, AreaExtension } from './types';
 
-const reliantAreas = ['lm-eval'];
+const reliantAreas = ['model-evaluations'];
 const PLUGIN_LM_EVAL = 'lm-eval-plugin';
 
 const extensions: (NavExtension | RouteExtension | AreaExtension)[] = [
@@ -20,9 +20,9 @@ const extensions: (NavExtension | RouteExtension | AreaExtension)[] = [
     properties: {
       id: 'lm-eval-mf',
       title: 'Model Evaluations MF',
-      href: '/lm-eval',
+      href: '/model-evaluations',
       section: 'models',
-      path: '/lm-eval/*',
+      path: '/model-evaluations/*',
     },
   },
   {
@@ -31,7 +31,7 @@ const extensions: (NavExtension | RouteExtension | AreaExtension)[] = [
       required: [PLUGIN_LM_EVAL],
     },
     properties: {
-      path: '/lm-eval/*',
+      path: '/model-evaluations/*',
       component: () => import('./LMEvalWrapper'),
     },
   },

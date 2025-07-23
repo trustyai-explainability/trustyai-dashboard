@@ -59,6 +59,65 @@ func (m *MockKubernetesClient) GetServiceDetails(ctx context.Context, namespace 
 	}, nil
 }
 
+func (m *MockKubernetesClient) GetModelServingServices(ctx context.Context, namespace string) ([]ServiceDetails, error) {
+	// Return mock model serving services based on namespace
+	mockServices := map[string][]ServiceDetails{
+		"project-1": {
+			{
+				Name:        "llama2-7b-service",
+				DisplayName: "Llama 2 7B Chat Model",
+				Description: "Model serving service for Llama 2 7B Chat",
+				ClusterIP:   "10.1.0.10",
+				HTTPPort:    8080,
+			},
+		},
+		"project-2": {
+			{
+				Name:        "gpt-3.5-proxy",
+				DisplayName: "GPT-3.5 Turbo Proxy",
+				Description: "OpenAI GPT-3.5 proxy service",
+				ClusterIP:   "10.1.0.20",
+				HTTPPort:    8080,
+			},
+		},
+		"ds-project-3": {
+			{
+				Name:        "model-registry",
+				DisplayName: "Model Registry",
+				Description: "Centralized model registry service",
+				ClusterIP:   "10.1.0.30",
+				HTTPPort:    8080,
+			},
+			{
+				Name:        "triton-inference-server",
+				DisplayName: "NVIDIA Triton Server",
+				Description: "High-performance inference server",
+				ClusterIP:   "10.1.0.31",
+				HTTPPort:    8000,
+			},
+		},
+		"default": {
+			{
+				Name:        "ollama-service",
+				DisplayName: "Ollama Local Models",
+				Description: "Local Ollama model serving",
+				ClusterIP:   "10.1.0.40",
+				HTTPPort:    11434,
+			},
+		},
+	}
+
+	if services, exists := mockServices[namespace]; exists {
+		m.Logger.Info("Mock: Retrieved model serving services",
+			"namespace", namespace,
+			"count", len(services))
+		return services, nil
+	}
+
+	// Return empty list for unknown namespaces
+	return []ServiceDetails{}, nil
+}
+
 func (m *MockKubernetesClient) GetNamespaces(ctx context.Context, identity *RequestIdentity) ([]corev1.Namespace, error) {
 	// Return mock namespaces that the user has access to
 	mockNamespaces := []corev1.Namespace{

@@ -111,7 +111,30 @@ curl -X GET "http://localhost:8080/api/v1/namespaces" \
 
 **GET** `/api/v1/models`
 
-Lists available models for evaluation.
+Lists available models for evaluation. Models are automatically discovered from model serving services deployed in accessible Kubernetes namespaces.
+
+#### Service Discovery
+
+The API automatically discovers model serving services by:
+
+- Scanning all namespaces the user has access to
+- Looking for services with model serving indicators:
+  - KServe services (labels: `serving.kserve.io/inferenceservice`, `app=kserve`)
+  - ModelMesh services (name: `modelmesh-serving`, labels: `app=modelmesh`)
+  - OpenShift AI/ODH services (names: `model-registry-service`, `odh-model-controller`)
+  - Seldon services (labels: `app=seldon`, `seldon-app`)
+  - MLflow services (names: `mlflow-server`, `mlflow-tracking`)
+  - NVIDIA Triton services (names: `triton-inference-server`)
+  - Generic ML services with model serving annotations
+
+#### Fallback Models
+
+If no model serving services are found, the API provides fallback external models:
+
+- OpenAI GPT-3.5 Turbo and GPT-4
+- Anthropic Claude 3 Opus
+- HuggingFace Llama 2 7B Chat
+- Local Ollama service
 
 #### Example Request
 
@@ -120,24 +143,47 @@ curl -X GET "http://localhost:8080/api/v1/models" \
   -H "kubeflow-userid: user@example.com"
 ```
 
-#### Example Response
+#### Example Response (Service Discovery)
 
 ```json
 {
   "data": [
     {
-      "value": "llama2-7b-chat",
-      "label": "Llama 2 7B Chat",
-      "displayName": "Llama 2 7B Chat",
-      "namespace": "default",
-      "service": "https://api.example.com/llama2-7b-chat"
+      "value": "llama2-7b-service-project-1",
+      "label": "Llama 2 7B Chat Model",
+      "displayName": "Llama 2 7B Chat Model",
+      "namespace": "project-1",
+      "service": "http://llama2-7b-service.project-1.svc.cluster.local:8080"
     },
     {
-      "value": "gpt-3.5-turbo",
-      "label": "GPT-3.5 Turbo",
-      "displayName": "GPT-3.5 Turbo",
-      "namespace": "default",
+      "value": "triton-inference-server-ds-project-3",
+      "label": "NVIDIA Triton Server",
+      "displayName": "NVIDIA Triton Server",
+      "namespace": "ds-project-3",
+      "service": "http://triton-inference-server.ds-project-3.svc.cluster.local:8000"
+    }
+  ]
+}
+```
+
+#### Example Response (Fallback)
+
+```json
+{
+  "data": [
+    {
+      "value": "openai-gpt-3.5-turbo",
+      "label": "OpenAI GPT-3.5 Turbo",
+      "displayName": "OpenAI GPT-3.5 Turbo",
+      "namespace": "external",
       "service": "https://api.openai.com/v1"
+    },
+    {
+      "value": "local-ollama",
+      "label": "Local Ollama Service",
+      "displayName": "Local Ollama",
+      "namespace": "local",
+      "service": "http://localhost:11434/v1"
     }
   ]
 }

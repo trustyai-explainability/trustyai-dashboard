@@ -15,6 +15,9 @@ type KubernetesClientInterface interface {
 	GetServiceDetailsByName(ctx context.Context, namespace, serviceName string) (ServiceDetails, error)
 	GetServiceDetails(ctx context.Context, namespace string) ([]ServiceDetails, error)
 
+	// Model serving service discovery
+	GetModelServingServices(ctx context.Context, namespace string) ([]ServiceDetails, error)
+
 	// Namespace access
 	GetNamespaces(ctx context.Context, identity *RequestIdentity) ([]corev1.Namespace, error)
 
