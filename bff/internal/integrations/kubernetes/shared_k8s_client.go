@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/constants"
@@ -71,6 +72,199 @@ func (kc *SharedClientLogic) GetServiceDetails(sessionCtx context.Context, names
 
 	}
 	return services, nil
+}
+
+// GetModelServingServices discovers model serving services in a namespace
+func (kc *SharedClientLogic) GetModelServingServices(sessionCtx context.Context, namespace string) ([]ServiceDetails, error) {
+	if namespace == "" {
+		return nil, fmt.Errorf("namespace cannot be empty")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	sessionLogger := sessionCtx.Value(constants.TraceLoggerKey).(*slog.Logger)
+
+	// Get all services in the namespace
+	serviceList, err := kc.Client.CoreV1().Services(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list services: %w", err)
+	}
+
+	var modelServices []ServiceDetails
+
+	for _, service := range serviceList.Items {
+		// Check if this is a model serving service
+		if isModelServingService(&service) {
+			serviceDetails, err := buildModelServingServiceDetails(&service, sessionLogger)
+			if err != nil {
+				sessionLogger.Warn("skipping model serving service", "service", service.Name, "error", err)
+				continue
+			}
+			modelServices = append(modelServices, *serviceDetails)
+		}
+	}
+
+	return modelServices, nil
+}
+
+// isModelServingService checks if a service is a model serving service
+func isModelServingService(service *corev1.Service) bool {
+	if service == nil {
+		return false
+	}
+
+	serviceName := service.Name
+	labels := service.Labels
+	annotations := service.Annotations
+
+	// Check for KServe services
+	if labels != nil {
+		if labels["serving.kserve.io/inferenceservice"] != "" ||
+		   labels["component"] == "predictor" ||
+		   labels["app"] == "kserve" {
+			return true
+		}
+	}
+
+	// Check for ModelMesh services
+	if serviceName == "modelmesh-serving" || 
+	   serviceName == "model-mesh" ||
+	   (labels != nil && labels["app"] == "modelmesh") {
+		return true
+	}
+
+	// Check for OpenShift AI/ODH model serving
+	if serviceName == "model-registry-service" ||
+	   serviceName == "model-registry" ||
+	   serviceName == "odh-model-controller" {
+		return true
+	}
+
+	// Check for Seldon services
+	if labels != nil && (labels["app"] == "seldon" || labels["seldon-app"] != "") {
+		return true
+	}
+
+	// Check for MLflow services
+	if serviceName == "mlflow-server" || 
+	   serviceName == "mlflow-tracking" ||
+	   (labels != nil && labels["app"] == "mlflow") {
+		return true
+	}
+
+	// Check for TorchServe
+	if serviceName == "torchserve" || 
+	   (labels != nil && labels["app"] == "torchserve") {
+		return true
+	}
+
+	// Check for NVIDIA Triton
+	if serviceName == "triton-inference-server" ||
+	   (labels != nil && labels["app"] == "triton") {
+		return true
+	}
+
+	// Check for generic ML/AI services by annotations
+	if annotations != nil {
+		if annotations["serving.kubeflow.org/inferenceservice"] != "" ||
+		   annotations["ai.openshift.io/model-serving"] != "" ||
+		   annotations["opendatahub.io/model-serving"] != "" {
+			return true
+		}
+	}
+
+	// Check for services with model serving in the name
+	if strings.Contains(serviceName, "model") && 
+	   (strings.Contains(serviceName, "serve") || 
+	    strings.Contains(serviceName, "infer") ||
+	    strings.Contains(serviceName, "predict")) {
+		return true
+	}
+
+	return false
+}
+
+// buildModelServingServiceDetails builds service details for model serving services
+func buildModelServingServiceDetails(service *corev1.Service, logger *slog.Logger) (*ServiceDetails, error) {
+	if service == nil {
+		return nil, fmt.Errorf("service cannot be nil")
+	}
+
+	// Try to find the main HTTP port (more flexible than just http-api)
+	var httpPort int32
+	hasHTTPPort := false
+	
+	// Look for common HTTP port names
+	httpPortNames := []string{"http-api", "http", "web", "serving", "inference", "predict"}
+	
+	for _, portName := range httpPortNames {
+		for _, port := range service.Spec.Ports {
+			if port.Name == portName {
+				httpPort = port.Port
+				hasHTTPPort = true
+				break
+			}
+		}
+		if hasHTTPPort {
+			break
+		}
+	}
+
+	// If no named port found, try to find HTTP ports by port number
+	if !hasHTTPPort {
+		for _, port := range service.Spec.Ports {
+			// Common HTTP ports
+			if port.Port == 80 || port.Port == 8080 || port.Port == 8000 || 
+			   port.Port == 5000 || port.Port == 9000 {
+				httpPort = port.Port
+				hasHTTPPort = true
+				break
+			}
+		}
+	}
+
+	// If still no port found, use the first port
+	if !hasHTTPPort && len(service.Spec.Ports) > 0 {
+		httpPort = service.Spec.Ports[0].Port
+		hasHTTPPort = true
+		logger.Warn("Using first available port for model serving service", 
+			"serviceName", service.Name, "port", httpPort)
+	}
+
+	if !hasHTTPPort {
+		return nil, fmt.Errorf("service %q has no usable HTTP port", service.Name)
+	}
+
+	if service.Spec.ClusterIP == "" {
+		return nil, fmt.Errorf("service %q missing ClusterIP", service.Name)
+	}
+
+	// Extract display name and description
+	displayName := service.Name
+	description := "Model serving service"
+	
+	if service.Annotations != nil {
+		if dn := service.Annotations["opendatahub.io/display-name"]; dn != "" {
+			displayName = dn
+		} else if dn := service.Annotations["serving.kubeflow.org/display-name"]; dn != "" {
+			displayName = dn
+		}
+		
+		if desc := service.Annotations["opendatahub.io/description"]; desc != "" {
+			description = desc
+		} else if desc := service.Annotations["serving.kubeflow.org/description"]; desc != "" {
+			description = desc
+		}
+	}
+
+	return &ServiceDetails{
+		Name:        service.Name,
+		DisplayName: displayName,
+		Description: description,
+		ClusterIP:   service.Spec.ClusterIP,
+		HTTPPort:    httpPort,
+	}, nil
 }
 
 func buildServiceDetails(service *corev1.Service, logger *slog.Logger) (*ServiceDetails, error) {
@@ -152,14 +346,22 @@ func (kc *SharedClientLogic) CreateLMEval(ctx context.Context, identity *Request
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	// Create dynamic client for custom resources
-	dynamicClient, err := dynamic.NewForConfig(&rest.Config{
+	// Get the base config from the existing client
+	baseConfig := kc.Client.CoreV1().RESTClient().Get().URL()
+	
+	// Create dynamic client config using the same TLS settings as the main client
+	config := &rest.Config{
+		Host:        baseConfig.Scheme + "://" + baseConfig.Host,
 		BearerToken: kc.Token.Raw(),
-		Host:        kc.Client.CoreV1().RESTClient().Get().URL().Host,
 		TLSClientConfig: rest.TLSClientConfig{
-			Insecure: true, // For development - should be configurable
+			// For development, allow insecure connections
+			// In production, this should be configured properly
+			Insecure: true,
 		},
-	})
+	}
+
+	// Create dynamic client for custom resources
+	dynamicClient, err := dynamic.NewForConfig(config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create dynamic client: %w", err)
 	}
@@ -171,6 +373,11 @@ func (kc *SharedClientLogic) CreateLMEval(ctx context.Context, identity *Request
 		Resource: "lmevals",
 	}
 
+	// Validate the LMEval object before creation
+	if err := validateLMEval(lmEval); err != nil {
+		return nil, fmt.Errorf("invalid LMEval object: %w", err)
+	}
+
 	// Convert to unstructured
 	unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(lmEval)
 	if err != nil {
@@ -180,6 +387,13 @@ func (kc *SharedClientLogic) CreateLMEval(ctx context.Context, identity *Request
 	// Create the resource
 	result, err := dynamicClient.Resource(gvr).Namespace(namespace).Create(ctx, &unstructured.Unstructured{Object: unstructuredObj}, metav1.CreateOptions{})
 	if err != nil {
+		// Provide more detailed error information
+		if strings.Contains(err.Error(), "no matches for kind") {
+			return nil, fmt.Errorf("LMEval CRD not found - ensure TrustyAI operator is installed: %w", err)
+		}
+		if strings.Contains(err.Error(), "forbidden") {
+			return nil, fmt.Errorf("insufficient permissions to create LMEval in namespace %s: %w", namespace, err)
+		}
 		return nil, fmt.Errorf("failed to create LMEval: %w", err)
 	}
 
@@ -187,10 +401,61 @@ func (kc *SharedClientLogic) CreateLMEval(ctx context.Context, identity *Request
 	var createdLMEval models.LMEvalKind
 	err = runtime.DefaultUnstructuredConverter.FromUnstructured(result.UnstructuredContent(), &createdLMEval)
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert from unstructured: %w", err)
+		return nil, fmt.Errorf("failed to convert created resource from unstructured: %w", err)
 	}
 
 	return &createdLMEval, nil
+}
+
+// validateLMEval validates the LMEval object before creation
+func validateLMEval(lmEval *models.LMEvalKind) error {
+	if lmEval == nil {
+		return fmt.Errorf("LMEval object cannot be nil")
+	}
+	
+	if lmEval.Metadata.Name == "" {
+		return fmt.Errorf("LMEval name is required")
+	}
+	
+	if lmEval.Metadata.Namespace == "" {
+		return fmt.Errorf("LMEval namespace is required")
+	}
+	
+	if lmEval.Spec.Model == "" {
+		return fmt.Errorf("LMEval model is required")
+	}
+	
+	if len(lmEval.Spec.TaskList.TaskNames) == 0 {
+		return fmt.Errorf("LMEval must have at least one task")
+	}
+	
+	// Validate Kubernetes name format
+	if !isValidKubernetesName(lmEval.Metadata.Name) {
+		return fmt.Errorf("LMEval name must be a valid Kubernetes resource name")
+	}
+	
+	return nil
+}
+
+// isValidKubernetesName checks if a name is valid for Kubernetes resources
+func isValidKubernetesName(name string) bool {
+	if len(name) == 0 || len(name) > 253 {
+		return false
+	}
+	
+	// Check for valid characters (lowercase letters, numbers, hyphens)
+	for _, r := range name {
+		if !((r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-') {
+			return false
+		}
+	}
+	
+	// Must start and end with alphanumeric
+	if name[0] == '-' || name[len(name)-1] == '-' {
+		return false
+	}
+	
+	return true
 }
 
 func (kc *SharedClientLogic) GetLMEval(ctx context.Context, identity *RequestIdentity, namespace, name string) (*models.LMEvalKind, error) {
