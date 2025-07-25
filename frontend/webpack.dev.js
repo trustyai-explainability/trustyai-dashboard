@@ -29,11 +29,13 @@ module.exports = merge(common('development'), {
         changeOrigin: true,
         secure: false,
         logLevel: 'debug',
-        // Add kubeflow-userid header for development
+        // Force kubeflow-userid header for development
         onProxyReq: (proxyReq, req, res) => {
-          if (process.env.DEV_USER_ID) {
-            proxyReq.setHeader('kubeflow-userid', process.env.DEV_USER_ID);
-          }
+          // Remove any existing header first
+          proxyReq.removeHeader('kubeflow-userid');
+          // Always set the header to pnaik for real cluster data
+          proxyReq.setHeader('kubeflow-userid', 'pnaik');
+          console.log('Proxy: Setting kubeflow-userid to pnaik');
         },
       },
     ],

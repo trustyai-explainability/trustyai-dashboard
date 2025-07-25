@@ -25,11 +25,11 @@ type KubernetesClientInterface interface {
 	CanListServicesInNamespace(ctx context.Context, identity *RequestIdentity, namespace string) (bool, error)
 	CanAccessServiceInNamespace(ctx context.Context, identity *RequestIdentity, namespace, serviceName string) (bool, error)
 
-	// LMEval CRUD operations
-	CreateLMEval(ctx context.Context, identity *RequestIdentity, namespace string, lmEval *models.LMEvalKind) (*models.LMEvalKind, error)
-	GetLMEval(ctx context.Context, identity *RequestIdentity, namespace, name string) (*models.LMEvalKind, error)
-	ListLMEvals(ctx context.Context, identity *RequestIdentity, namespace string) (*models.LMEvalList, error)
-	DeleteLMEval(ctx context.Context, identity *RequestIdentity, namespace, name string) error
+	// LMEvalJob CRUD operations
+	CreateLMEvalJob(ctx context.Context, identity *RequestIdentity, namespace string, lmEvalJob *models.LMEvalJobKind) (*models.LMEvalJobKind, error)
+	GetLMEvalJob(ctx context.Context, identity *RequestIdentity, namespace, name string) (*models.LMEvalJobKind, error)
+	ListLMEvalJobs(ctx context.Context, identity *RequestIdentity, namespace string) (*models.LMEvalJobList, error)
+	DeleteLMEvalJob(ctx context.Context, identity *RequestIdentity, namespace, name string) error
 
 	// Meta
 	IsClusterAdmin(identity *RequestIdentity) (bool, error)

@@ -1,5 +1,5 @@
 import { LMEvalKind } from '~/app/types';
-import { getApiBaseUrl, getDevUserId, isDevelopment } from '~/config/environment';
+import { getApiBaseUrl } from '~/config/environment';
 
 // Define missing types that match the backend models
 export interface LMEvalList {
@@ -33,11 +33,7 @@ const API_BASE = getApiBaseUrl();
 // Default headers for kubeflow authentication
 const getDefaultHeaders = (): Record<string, string> => ({
   'Content-Type': 'application/json',
-  // For development and testing with mock authentication, include the required header
-  // In production, this will be injected by OAuth proxy
-  ...(isDevelopment() && {
-    'kubeflow-userid': getDevUserId(),
-  }),
+  // Headers are injected by proxy in development or OAuth proxy in production
 });
 
 // Generic API client for making requests
@@ -88,8 +84,23 @@ class ApiClient {
     });
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  async delete(endpoint: string): Promise<void> {
+    const url = `${this.baseUrl}${endpoint}`;
+    const headers = {
+      ...getDefaultHeaders(),
+    };
+
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`,
+      );
+    }
   }
 }
 
@@ -130,7 +141,7 @@ export const k8sApi = {
     ),
 
   deleteLMEval: (namespace: string, name: string): Promise<void> =>
-    apiClient.delete<void>(
+    apiClient.delete(
       `/evaluations/${encodeURIComponent(name)}?namespace=${encodeURIComponent(namespace)}`,
     ),
 

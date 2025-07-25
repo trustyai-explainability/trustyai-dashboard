@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/trustyai-explainability/trustyai-dashboard/bff/internal/constants"
@@ -12,6 +13,8 @@ import (
 
 type LMEvalEnvelope Envelope[*models.LMEvalKind, None]
 type LMEvalListEnvelope Envelope[*models.LMEvalList, None]
+type LMEvalJobEnvelope Envelope[*models.LMEvalJobKind, None]
+type LMEvalJobListEnvelope Envelope[*models.LMEvalJobList, None]
 
 // CreateLMEvalHandler handles POST /api/v1/evaluations
 func (app *App) CreateLMEvalHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -58,45 +61,45 @@ func (app *App) CreateLMEvalHandler(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 
-	// Convert create request to LMEvalKind
-	lmEval := &models.LMEvalKind{
+	// Convert create request to LMEvalJobKind
+	lmEvalJob := &models.LMEvalJobKind{
 		APIVersion: "trustyai.opendatahub.io/v1alpha1",
-		Kind:       "LMEval",
-		Metadata: models.LMEvalMetadata{
+		Kind:       "LMEvalJob",
+		Metadata: models.LMEvalJobMetadata{
 			Name:      createRequest.K8sName,
 			Namespace: namespace,
 			Annotations: map[string]string{
 				"opendatahub.io/display-name": createRequest.EvaluationName,
 			},
 		},
-		Spec: models.LMEvalSpec{
+		Spec: models.LMEvalJobSpec{
 			AllowCodeExecution: createRequest.AllowRemoteCode,
 			AllowOnline:        createRequest.AllowOnline,
 			BatchSize:          createRequest.BatchSize,
 			LogSamples:         true,
-			Model:              createRequest.ModelType,
-			ModelArgs:          convertModelArgs(createRequest.Model),
-			TaskList: models.LMEvalTaskList{
+			Model:              mapModelTypeToSupportedType(createRequest.ModelType),
+			ModelArgs:          convertModelArgsToJob(createRequest.Model),
+			TaskList: models.LMEvalJobTaskList{
 				TaskNames: createRequest.Tasks,
 			},
-			Outputs: &models.LMEvalOutputs{
-				PVCManaged: &models.LMEvalPVCManaged{
+			Outputs: &models.LMEvalJobOutputs{
+				PVCManaged: &models.LMEvalJobPVCManaged{
 					Size: "100Mi",
 				},
 			},
 		},
 	}
 
-	// Create the LMEval resource
-	createdLMEval, err := client.CreateLMEval(ctx, identity, namespace, lmEval)
+	// Create the LMEvalJob resource
+	createdLMEvalJob, err := client.CreateLMEvalJob(ctx, identity, namespace, lmEvalJob)
 	if err != nil {
-		app.serverErrorResponse(w, r, fmt.Errorf("failed to create LMEval: %w", err))
+		app.serverErrorResponse(w, r, fmt.Errorf("failed to create LMEvalJob: %w", err))
 		return
 	}
 
 	// Return the created resource
-	response := LMEvalEnvelope{
-		Data: createdLMEval,
+	response := LMEvalJobEnvelope{
+		Data: createdLMEvalJob,
 	}
 
 	err = app.WriteJSON(w, http.StatusCreated, response, nil)
@@ -134,16 +137,16 @@ func (app *App) GetLMEvalHandler(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// Get the LMEval resource
-	lmEval, err := client.GetLMEval(ctx, identity, namespace, name)
+	// Get the LMEvalJob resource
+	lmEvalJob, err := client.GetLMEvalJob(ctx, identity, namespace, name)
 	if err != nil {
-		app.serverErrorResponse(w, r, fmt.Errorf("failed to get LMEval: %w", err))
+		app.serverErrorResponse(w, r, fmt.Errorf("failed to get LMEvalJob: %w", err))
 		return
 	}
 
 	// Return the resource
-	response := LMEvalEnvelope{
-		Data: lmEval,
+	response := LMEvalJobEnvelope{
+		Data: lmEvalJob,
 	}
 
 	err = app.WriteJSON(w, http.StatusOK, response, nil)
@@ -171,16 +174,16 @@ func (app *App) ListLMEvalsHandler(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
-	// List LMEval resources
-	lmEvalList, err := client.ListLMEvals(ctx, identity, namespace)
+	// List LMEvalJob resources
+	lmEvalJobList, err := client.ListLMEvalJobs(ctx, identity, namespace)
 	if err != nil {
-		app.serverErrorResponse(w, r, fmt.Errorf("failed to list LMEvals: %w", err))
+		app.serverErrorResponse(w, r, fmt.Errorf("failed to list LMEvalJobs: %w", err))
 		return
 	}
 
 	// Return the list
-	response := LMEvalListEnvelope{
-		Data: lmEvalList,
+	response := LMEvalJobListEnvelope{
+		Data: lmEvalJobList,
 	}
 
 	err = app.WriteJSON(w, http.StatusOK, response, nil)
@@ -218,10 +221,10 @@ func (app *App) DeleteLMEvalHandler(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 
-	// Delete the LMEval resource
-	err = client.DeleteLMEval(ctx, identity, namespace, name)
+	// Delete the LMEvalJob resource
+	err = client.DeleteLMEvalJob(ctx, identity, namespace, name)
 	if err != nil {
-		app.serverErrorResponse(w, r, fmt.Errorf("failed to delete LMEval: %w", err))
+		app.serverErrorResponse(w, r, fmt.Errorf("failed to delete LMEvalJob: %w", err))
 		return
 	}
 
@@ -234,22 +237,32 @@ func convertModelArgs(modelConfig models.LMEvalModelConfig) []models.LMEvalModel
 	var args []models.LMEvalModelArg
 
 	if modelConfig.Name != "" {
+		// Extract just the model name without the predictor suffix
+		modelName := modelConfig.Name
+		if strings.Contains(modelName, "-predictor") {
+			modelName = strings.Replace(modelName, "-predictor", "", 1)
+		}
 		args = append(args, models.LMEvalModelArg{
 			Name:  "model",
-			Value: modelConfig.Name,
+			Value: modelName,
 		})
 	}
 
 	if modelConfig.URL != "" {
+		// Remove port 80 from URL if present
+		baseURL := modelConfig.URL
+		if strings.Contains(baseURL, ":80") {
+			baseURL = strings.Replace(baseURL, ":80", "", 1)
+		}
 		args = append(args, models.LMEvalModelArg{
-			Name:  "url",
-			Value: modelConfig.URL,
+			Name:  "base_url",
+			Value: baseURL,
 		})
 	}
 
 	if modelConfig.TokenizedRequest != "" {
 		args = append(args, models.LMEvalModelArg{
-			Name:  "tokenized_request",
+			Name:  "tokenized_requests",
 			Value: modelConfig.TokenizedRequest,
 		})
 	}
@@ -261,5 +274,98 @@ func convertModelArgs(modelConfig models.LMEvalModelConfig) []models.LMEvalModel
 		})
 	}
 
+	// Add required parameters for local-completions model
+	args = append(args, models.LMEvalModelArg{
+		Name:  "num_concurrent",
+		Value: "1",
+	})
+	args = append(args, models.LMEvalModelArg{
+		Name:  "max_retries",
+		Value: "3",
+	})
+
+
+
 	return args
+}
+
+// Helper function to convert model configuration to LMEvalJob model arguments
+func convertModelArgsToJob(modelConfig models.LMEvalModelConfig) []models.LMEvalJobModelArg {
+	var args []models.LMEvalJobModelArg
+
+	if modelConfig.Name != "" {
+		// Extract just the model name without the predictor suffix
+		modelName := modelConfig.Name
+		if strings.Contains(modelName, "-predictor") {
+			modelName = strings.Replace(modelName, "-predictor", "", 1)
+		}
+		args = append(args, models.LMEvalJobModelArg{
+			Name:  "model",
+			Value: modelName,
+		})
+	}
+
+	if modelConfig.URL != "" {
+		// Remove port 80 from URL if present
+		baseURL := modelConfig.URL
+		if strings.Contains(baseURL, ":80") {
+			baseURL = strings.Replace(baseURL, ":80", "", 1)
+		}
+		args = append(args, models.LMEvalJobModelArg{
+			Name:  "base_url",
+			Value: baseURL,
+		})
+	}
+
+	if modelConfig.TokenizedRequest != "" {
+		args = append(args, models.LMEvalJobModelArg{
+			Name:  "tokenized_requests",
+			Value: modelConfig.TokenizedRequest,
+		})
+	}
+
+	if modelConfig.Tokenizer != "" {
+		args = append(args, models.LMEvalJobModelArg{
+			Name:  "tokenizer",
+			Value: modelConfig.Tokenizer,
+		})
+	}
+
+	// Add required parameters for local-completions model
+	args = append(args, models.LMEvalJobModelArg{
+		Name:  "num_concurrent",
+		Value: "1",
+	})
+	args = append(args, models.LMEvalJobModelArg{
+		Name:  "max_retries",
+		Value: "3",
+	})
+
+
+
+	return args
+}
+
+// mapModelTypeToSupportedType maps frontend model types to TrustyAI operator supported types
+func mapModelTypeToSupportedType(modelType string) string {
+	// Map common model types to supported TrustyAI operator types
+	switch {
+	case strings.Contains(modelType, "tinyllm"):
+		return "local-completions"
+	case strings.Contains(modelType, "llama"):
+		return "local-completions"
+	case strings.Contains(modelType, "mistral"):
+		return "local-completions"
+	case strings.Contains(modelType, "openai"):
+		return "openai-completions"
+	case strings.Contains(modelType, "huggingface") || strings.Contains(modelType, "hf"):
+		return "hf"
+	case strings.Contains(modelType, "watsonx"):
+		return "watsonx_llm"
+	case strings.Contains(modelType, "textsynth"):
+		return "textsynth"
+	default:
+		// Default to local-completions for unknown types
+		return "local-completions"
+	}
 }

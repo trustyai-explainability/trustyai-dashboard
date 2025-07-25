@@ -76,9 +76,15 @@ func convertServiceToModelOption(service kubernetes.ServiceDetails, namespace st
 		displayName = service.Name
 	}
 
-	// Construct service URL
-	serviceURL := fmt.Sprintf("http://%s.%s.svc.cluster.local:%d",
-		service.Name, namespace, service.HTTPPort)
+	// Construct service URL - omit port 80 as it's the default HTTP port
+	var serviceURL string
+	if service.HTTPPort == 80 {
+		serviceURL = fmt.Sprintf("http://%s.%s.svc.cluster.local",
+			service.Name, namespace)
+	} else {
+		serviceURL = fmt.Sprintf("http://%s.%s.svc.cluster.local:%d",
+			service.Name, namespace, service.HTTPPort)
+	}
 
 	return models.ModelOption{
 		Value:       fmt.Sprintf("%s-%s", service.Name, namespace),

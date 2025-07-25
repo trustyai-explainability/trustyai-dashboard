@@ -1,6 +1,7 @@
 import React from 'react';
 import DeleteModal from '~/app/components/DeleteModal';
 import { LMEvalKind } from '~/app/types';
+import { LMEvalService } from '~/app/api';
 
 export type DeleteLMEvalModalProps = {
   lmEval: LMEvalKind;
@@ -19,16 +20,25 @@ const DeleteLMEvalModal: React.FC<DeleteLMEvalModalProps> = ({ lmEval, onClose }
 
   const deleteName = lmEval.metadata.name;
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    setError(undefined);
+
+    try {
+      await LMEvalService.deleteEvaluation(lmEval.metadata.namespace, lmEval.metadata.name);
+      onBeforeClose(true);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to delete evaluation'));
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <DeleteModal
       title="Delete model evaluation?"
       onClose={() => onBeforeClose(false)}
       submitButtonLabel="Delete model evaluation"
-      onDelete={() => {
-        setIsDeleting(true);
-
-        /* TODO: Implement delete model evaluation */
-      }}
+      onDelete={handleDelete}
       deleting={isDeleting}
       error={error}
       deleteName={deleteName}

@@ -3,13 +3,15 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"strings"
+	"time"
+
 	helper "github.com/trustyai-explainability/trustyai-dashboard/bff/internal/helpers"
 	authv1 "k8s.io/api/authorization/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"log/slog"
-	"time"
 )
 
 type InternalKubernetesClient struct {
@@ -123,9 +125,17 @@ func (kc *InternalKubernetesClient) GetNamespaces(ctx context.Context, identity 
 		return nil, fmt.Errorf("failed to list namespaces: %w", err)
 	}
 
-	//check access for each namespace
+	//check access for each namespace with rate limiting
 	var allowed []corev1.Namespace
 	for _, ns := range namespaceList.Items {
+		// Skip system namespaces to reduce API calls
+		if strings.HasPrefix(ns.Name, "openshift-") || 
+		   strings.HasPrefix(ns.Name, "kube-") || 
+		   ns.Name == "default" || 
+		   ns.Name == "system" {
+			continue
+		}
+		
 		sar := &authv1.SubjectAccessReview{
 			Spec: authv1.SubjectAccessReviewSpec{
 				User:   identity.UserID,
