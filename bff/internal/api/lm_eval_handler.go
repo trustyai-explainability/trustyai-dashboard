@@ -284,8 +284,6 @@ func convertModelArgs(modelConfig models.LMEvalModelConfig) []models.LMEvalModel
 		Value: "3",
 	})
 
-
-
 	return args
 }
 
@@ -340,8 +338,6 @@ func convertModelArgsToJob(modelConfig models.LMEvalModelConfig) []models.LMEval
 		Name:  "max_retries",
 		Value: "3",
 	})
-
-
 
 	return args
 }

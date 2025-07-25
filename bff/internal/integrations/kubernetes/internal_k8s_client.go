@@ -129,13 +129,13 @@ func (kc *InternalKubernetesClient) GetNamespaces(ctx context.Context, identity 
 	var allowed []corev1.Namespace
 	for _, ns := range namespaceList.Items {
 		// Skip system namespaces to reduce API calls
-		if strings.HasPrefix(ns.Name, "openshift-") || 
-		   strings.HasPrefix(ns.Name, "kube-") || 
-		   ns.Name == "default" || 
-		   ns.Name == "system" {
+		if strings.HasPrefix(ns.Name, "openshift-") ||
+			strings.HasPrefix(ns.Name, "kube-") ||
+			ns.Name == "default" ||
+			ns.Name == "system" {
 			continue
 		}
-		
+
 		sar := &authv1.SubjectAccessReview{
 			Spec: authv1.SubjectAccessReviewSpec{
 				User:   identity.UserID,

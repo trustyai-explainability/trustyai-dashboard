@@ -98,6 +98,26 @@ func (m *MockKubernetesClient) DeleteLMEval(ctx context.Context, identity *kuber
 	return args.Error(0)
 }
 
+func (m *MockKubernetesClient) CreateLMEvalJob(ctx context.Context, identity *kubernetes.RequestIdentity, namespace string, lmEvalJob *models.LMEvalJobKind) (*models.LMEvalJobKind, error) {
+	args := m.Called(ctx, identity, namespace, lmEvalJob)
+	return args.Get(0).(*models.LMEvalJobKind), args.Error(1)
+}
+
+func (m *MockKubernetesClient) GetLMEvalJob(ctx context.Context, identity *kubernetes.RequestIdentity, namespace, name string) (*models.LMEvalJobKind, error) {
+	args := m.Called(ctx, identity, namespace, name)
+	return args.Get(0).(*models.LMEvalJobKind), args.Error(1)
+}
+
+func (m *MockKubernetesClient) ListLMEvalJobs(ctx context.Context, identity *kubernetes.RequestIdentity, namespace string) (*models.LMEvalJobList, error) {
+	args := m.Called(ctx, identity, namespace)
+	return args.Get(0).(*models.LMEvalJobList), args.Error(1)
+}
+
+func (m *MockKubernetesClient) DeleteLMEvalJob(ctx context.Context, identity *kubernetes.RequestIdentity, namespace, name string) error {
+	args := m.Called(ctx, identity, namespace, name)
+	return args.Error(0)
+}
+
 func (m *MockKubernetesClient) IsClusterAdmin(identity *kubernetes.RequestIdentity) (bool, error) {
 	args := m.Called(identity)
 	return args.Bool(0), args.Error(1)
@@ -138,30 +158,30 @@ func TestCreateLMEvalHandler(t *testing.T) {
 		BatchSize:       "8",
 	}
 
-	expectedLMEval := &models.LMEvalKind{
+	expectedLMEvalJob := &models.LMEvalJobKind{
 		APIVersion: "trustyai.opendatahub.io/v1alpha1",
-		Kind:       "LMEval",
-		Metadata: models.LMEvalMetadata{
+		Kind:       "LMEvalJob",
+		Metadata: models.LMEvalJobMetadata{
 			Name:      "test-evaluation",
 			Namespace: "test-namespace",
 			Annotations: map[string]string{
 				"opendatahub.io/display-name": "test-evaluation",
 			},
 		},
-		Spec: models.LMEvalSpec{
+		Spec: models.LMEvalJobSpec{
 			AllowCodeExecution: false,
 			AllowOnline:        true,
 			BatchSize:          "8",
 			LogSamples:         true,
 			Model:              "test-model",
-			ModelArgs: []models.LMEvalModelArg{
+			ModelArgs: []models.LMEvalJobModelArg{
 				{Name: "model", Value: "test-model"},
 			},
-			TaskList: models.LMEvalTaskList{
+			TaskList: models.LMEvalJobTaskList{
 				TaskNames: []string{"hellaswag"},
 			},
-			Outputs: &models.LMEvalOutputs{
-				PVCManaged: &models.LMEvalPVCManaged{
+			Outputs: &models.LMEvalJobOutputs{
+				PVCManaged: &models.LMEvalJobPVCManaged{
 					Size: "100Mi",
 				},
 			},
@@ -170,7 +190,7 @@ func TestCreateLMEvalHandler(t *testing.T) {
 
 	// Setup expectations
 	mockFactory.On("GetClient", mock.Anything).Return(mockClient, nil)
-	mockClient.On("CreateLMEval", mock.Anything, mock.Anything, "test-namespace", mock.Anything).Return(expectedLMEval, nil)
+	mockClient.On("CreateLMEvalJob", mock.Anything, mock.Anything, "test-namespace", mock.Anything).Return(expectedLMEvalJob, nil)
 
 	// Create request
 	requestBody, _ := json.Marshal(createRequest)
@@ -191,7 +211,7 @@ func TestCreateLMEvalHandler(t *testing.T) {
 	// Assert
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	var response LMEvalEnvelope
+	var response LMEvalJobEnvelope
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.NotNil(t, response.Data)
@@ -214,21 +234,21 @@ func TestListLMEvalsHandler(t *testing.T) {
 	}
 
 	// Test data
-	expectedList := &models.LMEvalList{
+	expectedList := &models.LMEvalJobList{
 		APIVersion: "trustyai.opendatahub.io/v1alpha1",
-		Kind:       "LMEvalList",
+		Kind:       "LMEvalJobList",
 		Metadata:   models.ListMetadata{ResourceVersion: "1"},
-		Items: []models.LMEvalKind{
+		Items: []models.LMEvalJobKind{
 			{
 				APIVersion: "trustyai.opendatahub.io/v1alpha1",
-				Kind:       "LMEval",
-				Metadata: models.LMEvalMetadata{
+				Kind:       "LMEvalJob",
+				Metadata: models.LMEvalJobMetadata{
 					Name:      "test-eval-1",
 					Namespace: "test-namespace",
 				},
-				Spec: models.LMEvalSpec{
+				Spec: models.LMEvalJobSpec{
 					Model: "test-model",
-					TaskList: models.LMEvalTaskList{
+					TaskList: models.LMEvalJobTaskList{
 						TaskNames: []string{"hellaswag"},
 					},
 				},
@@ -238,7 +258,7 @@ func TestListLMEvalsHandler(t *testing.T) {
 
 	// Setup expectations
 	mockFactory.On("GetClient", mock.Anything).Return(mockClient, nil)
-	mockClient.On("ListLMEvals", mock.Anything, mock.Anything, "test-namespace").Return(expectedList, nil)
+	mockClient.On("ListLMEvalJobs", mock.Anything, mock.Anything, "test-namespace").Return(expectedList, nil)
 
 	// Create request
 	req := httptest.NewRequest("GET", "/api/v1/evaluations?namespace=test-namespace", nil)

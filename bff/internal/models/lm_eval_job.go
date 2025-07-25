@@ -59,14 +59,14 @@ type LMEvalJobPVCManaged struct {
 
 // LMEvalJobStatus contains the current status of the evaluation job
 type LMEvalJobStatus struct {
-	CompleteTime     *time.Time               `json:"completeTime,omitempty"`
-	LastScheduleTime *time.Time               `json:"lastScheduleTime,omitempty"`
-	Message          string                   `json:"message,omitempty"`
-	PodName          string                   `json:"podName,omitempty"`
-	Reason           string                   `json:"reason,omitempty"`
-	Results          string                   `json:"results,omitempty"`
-	State            string                   `json:"state,omitempty"`
-	ProgressBars     []LMEvalJobProgressBar   `json:"progressBars,omitempty"`
+	CompleteTime     *time.Time             `json:"completeTime,omitempty"`
+	LastScheduleTime *time.Time             `json:"lastScheduleTime,omitempty"`
+	Message          string                 `json:"message,omitempty"`
+	PodName          string                 `json:"podName,omitempty"`
+	Reason           string                 `json:"reason,omitempty"`
+	Results          string                 `json:"results,omitempty"`
+	State            string                 `json:"state,omitempty"`
+	ProgressBars     []LMEvalJobProgressBar `json:"progressBars,omitempty"`
 }
 
 // LMEvalJobProgressBar represents a progress bar in the status
@@ -80,22 +80,22 @@ type LMEvalJobProgressBar struct {
 
 // LMEvalJobList represents a list of LMEvalJob resources
 type LMEvalJobList struct {
-	APIVersion string         `json:"apiVersion"`
-	Kind       string         `json:"kind"`
-	Metadata   ListMetadata   `json:"metadata"`
+	APIVersion string          `json:"apiVersion"`
+	Kind       string          `json:"kind"`
+	Metadata   ListMetadata    `json:"metadata"`
 	Items      []LMEvalJobKind `json:"items"`
 }
 
 // LMEvalJobCreateRequest represents a request to create a new evaluation job
 type LMEvalJobCreateRequest struct {
-	EvaluationName  string                `json:"evaluationName"`
-	K8sName         string                `json:"k8sName"`
-	ModelType       string                `json:"modelType"`
-	Model           LMEvalJobModelConfig  `json:"model"`
-	Tasks           []string              `json:"tasks"`
-	AllowRemoteCode bool                  `json:"allowRemoteCode"`
-	AllowOnline     bool                  `json:"allowOnline"`
-	BatchSize       string                `json:"batchSize,omitempty"`
+	EvaluationName  string               `json:"evaluationName"`
+	K8sName         string               `json:"k8sName"`
+	ModelType       string               `json:"modelType"`
+	Model           LMEvalJobModelConfig `json:"model"`
+	Tasks           []string             `json:"tasks"`
+	AllowRemoteCode bool                 `json:"allowRemoteCode"`
+	AllowOnline     bool                 `json:"allowOnline"`
+	BatchSize       string               `json:"batchSize,omitempty"`
 }
 
 // LMEvalJobModelConfig represents model configuration
@@ -104,4 +104,4 @@ type LMEvalJobModelConfig struct {
 	URL              string `json:"url"`
 	TokenizedRequest string `json:"tokenizedRequest"`
 	Tokenizer        string `json:"tokenizer"`
-} 
+}
