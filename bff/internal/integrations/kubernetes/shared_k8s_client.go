@@ -571,29 +571,6 @@ func (kc *SharedClientLogic) DeleteLMEvalJob(ctx context.Context, identity *Requ
 	return nil
 }
 
-// Helper function to convert unstructured list to LMEvalList
-func convertUnstructuredListToLMEvalList(unstructuredList *unstructured.UnstructuredList) (*models.LMEvalList, error) {
-	var lmEvalList models.LMEvalList
-
-	// Set metadata
-	lmEvalList.APIVersion = unstructuredList.GetAPIVersion()
-	lmEvalList.Kind = unstructuredList.GetKind()
-	lmEvalList.Metadata.ResourceVersion = unstructuredList.GetResourceVersion()
-
-	// Convert items
-	for _, item := range unstructuredList.Items {
-		var lmEval models.LMEvalKind
-		err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.UnstructuredContent(), &lmEval)
-		if err != nil {
-			// Log error but continue with other items
-			continue
-		}
-		lmEvalList.Items = append(lmEvalList.Items, lmEval)
-	}
-
-	return &lmEvalList, nil
-}
-
 // Helper function to convert unstructured list to LMEvalJobList
 func convertUnstructuredListToLMEvalJobList(unstructuredList *unstructured.UnstructuredList) (*models.LMEvalJobList, error) {
 	var lmEvalJobList models.LMEvalJobList

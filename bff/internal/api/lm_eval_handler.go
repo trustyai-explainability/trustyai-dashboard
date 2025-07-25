@@ -232,71 +232,13 @@ func (app *App) DeleteLMEvalHandler(w http.ResponseWriter, r *http.Request, ps h
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// Helper function to convert model configuration to model arguments
-func convertModelArgs(modelConfig models.LMEvalModelConfig) []models.LMEvalModelArg {
-	var args []models.LMEvalModelArg
-
-	if modelConfig.Name != "" {
-		// Extract just the model name without the predictor suffix
-		modelName := modelConfig.Name
-		if strings.Contains(modelName, "-predictor") {
-			modelName = strings.Replace(modelName, "-predictor", "", 1)
-		}
-		args = append(args, models.LMEvalModelArg{
-			Name:  "model",
-			Value: modelName,
-		})
-	}
-
-	if modelConfig.URL != "" {
-		// Remove port 80 from URL if present
-		baseURL := modelConfig.URL
-		if strings.Contains(baseURL, ":80") {
-			baseURL = strings.Replace(baseURL, ":80", "", 1)
-		}
-		args = append(args, models.LMEvalModelArg{
-			Name:  "base_url",
-			Value: baseURL,
-		})
-	}
-
-	if modelConfig.TokenizedRequest != "" {
-		args = append(args, models.LMEvalModelArg{
-			Name:  "tokenized_requests",
-			Value: modelConfig.TokenizedRequest,
-		})
-	}
-
-	if modelConfig.Tokenizer != "" {
-		args = append(args, models.LMEvalModelArg{
-			Name:  "tokenizer",
-			Value: modelConfig.Tokenizer,
-		})
-	}
-
-	// Add required parameters for local-completions model
-	args = append(args, models.LMEvalModelArg{
-		Name:  "num_concurrent",
-		Value: "1",
-	})
-	args = append(args, models.LMEvalModelArg{
-		Name:  "max_retries",
-		Value: "3",
-	})
-
-	return args
-}
-
 // Helper function to convert model configuration to LMEvalJob model arguments
 func convertModelArgsToJob(modelConfig models.LMEvalModelConfig) []models.LMEvalJobModelArg {
 	var args []models.LMEvalJobModelArg
 
 	if modelConfig.Name != "" {
 		// Extract just the model name without the predictor suffix
-		modelName := modelConfig.Name
-		if strings.Contains(modelName, "-predictor") {
-			modelName = strings.Replace(modelName, "-predictor", "", 1)
-		}
+		modelName := strings.Replace(modelConfig.Name, "-predictor", "", 1)
 		args = append(args, models.LMEvalJobModelArg{
 			Name:  "model",
 			Value: modelName,
@@ -305,10 +247,7 @@ func convertModelArgsToJob(modelConfig models.LMEvalModelConfig) []models.LMEval
 
 	if modelConfig.URL != "" {
 		// Remove port 80 from URL if present
-		baseURL := modelConfig.URL
-		if strings.Contains(baseURL, ":80") {
-			baseURL = strings.Replace(baseURL, ":80", "", 1)
-		}
+		baseURL := strings.Replace(modelConfig.URL, ":80", "", 1)
 		args = append(args, models.LMEvalJobModelArg{
 			Name:  "base_url",
 			Value: baseURL,
