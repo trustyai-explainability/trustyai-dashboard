@@ -21,10 +21,10 @@ describe('Kubernetes API', () => {
       const result = await k8sApi.getNamespaces();
       expect(result).toEqual(mockResponse);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/v1/namespaces',
+        '/api/v1/namespaces',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'kubeflow-userid': 'test-user@example.com',
+            'Content-Type': 'application/json',
           }),
         }),
       );
@@ -46,8 +46,12 @@ describe('Kubernetes API', () => {
       const result = await k8sApi.listLMEvals('test-namespace');
       expect(result).toEqual(mockResponse);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/v1/evaluations?namespace=test-namespace',
-        expect.any(Object),
+        '/api/v1/evaluations?namespace=test-namespace',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+          }),
+        }),
       );
     });
   });

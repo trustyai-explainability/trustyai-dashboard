@@ -47,8 +47,8 @@ const productionConfig: EnvironmentConfig = {
 // Test configuration
 const testConfig: EnvironmentConfig = {
   apiBaseUrl: '/api/v1',
-  bffUrl: 'http://localhost:8080',
-  devUserId: 'test-user@example.com',
+  bffUrl: process.env.BFF_URL || 'http://localhost:8080',
+  devUserId: process.env.TEST_USER_ID || 'test-user@example.com',
   authMethod: 'mock',
   isDevelopment: false,
   isProduction: false,

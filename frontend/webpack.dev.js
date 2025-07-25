@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 const path = require('path');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
@@ -33,9 +36,14 @@ module.exports = merge(common('development'), {
         onProxyReq: (proxyReq, req, res) => {
           // Remove any existing header first
           proxyReq.removeHeader('kubeflow-userid');
-          // Always set the header to pnaik for real cluster data
-          proxyReq.setHeader('kubeflow-userid', 'pnaik');
-          console.log('Proxy: Setting kubeflow-userid to pnaik');
+          // Use environment variable or fallback to default
+          const userId = process.env.DEV_USER_ID || 'test';
+          // Ensure userId is not undefined or empty
+          if (userId && userId.trim() !== '') {
+            proxyReq.setHeader('kubeflow-userid', userId);
+          } else {
+            proxyReq.setHeader('kubeflow-userid', 'pnaik');
+          }
         },
       },
     ],
