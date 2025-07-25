@@ -1,4 +1,5 @@
 import { LMEvalKind } from '~/app/types';
+import { getApiBaseUrl, getDevUserId, isDevelopment } from '~/config/environment';
 
 // Define missing types that match the backend models
 export interface LMEvalList {
@@ -26,19 +27,16 @@ export interface LMEvalCreateRequest {
   batchSize?: string;
 }
 
-// API base configuration
-const API_BASE =
-  process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
-    ? 'http://localhost:8080/api/v1'
-    : '/api/v1';
+// API base configuration using environment config
+const API_BASE = getApiBaseUrl();
 
 // Default headers for kubeflow authentication
 const getDefaultHeaders = (): Record<string, string> => ({
   'Content-Type': 'application/json',
   // For development and testing with mock authentication, include the required header
   // In production, this will be injected by OAuth proxy
-  ...((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') && {
-    'kubeflow-userid': 'test-user@example.com',
+  ...(isDevelopment() && {
+    'kubeflow-userid': getDevUserId(),
   }),
 });
 

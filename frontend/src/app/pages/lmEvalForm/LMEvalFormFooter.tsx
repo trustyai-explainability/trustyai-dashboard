@@ -89,7 +89,7 @@ const LMEvalFormFooter: React.FC<LMEvalFormFooterProps> = ({ data, k8sNameData }
               onClick={onCreateLmEval}
               isLoading={isSubmitting}
             >
-              {isSubmitting ? 'Creating evaluation...' : 'Start evaluation run'}
+              Start evaluation run
             </Button>
           </ActionListItem>
           <ActionListItem>

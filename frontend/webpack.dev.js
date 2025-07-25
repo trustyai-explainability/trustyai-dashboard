@@ -21,6 +21,22 @@ module.exports = merge(common('development'), {
     client: {
       overlay: true,
     },
+    // Proxy configuration for development
+    proxy: [
+      {
+        context: ['/api', '/healthcheck'],
+        target: process.env.BFF_URL || 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+        logLevel: 'debug',
+        // Add kubeflow-userid header for development
+        onProxyReq: (proxyReq, req, res) => {
+          if (process.env.DEV_USER_ID) {
+            proxyReq.setHeader('kubeflow-userid', process.env.DEV_USER_ID);
+          }
+        },
+      },
+    ],
   },
   module: {
     rules: [
