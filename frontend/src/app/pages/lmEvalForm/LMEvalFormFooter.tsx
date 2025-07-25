@@ -50,7 +50,7 @@ const LMEvalFormFooter: React.FC<LMEvalFormFooterProps> = ({ data, k8sNameData }
         tasks: data.tasks,
         allowRemoteCode: data.allowRemoteCode,
         allowOnline: data.allowOnline,
-        batchSize: '8', // Default batch size
+        batchSize: '1', // Use batch size 1 for better compatibility
       };
 
       // Create the evaluation using our API
@@ -89,7 +89,7 @@ const LMEvalFormFooter: React.FC<LMEvalFormFooterProps> = ({ data, k8sNameData }
               onClick={onCreateLmEval}
               isLoading={isSubmitting}
             >
-              {isSubmitting ? 'Creating evaluation...' : 'Start evaluation run'}
+              Start evaluation run
             </Button>
           </ActionListItem>
           <ActionListItem>

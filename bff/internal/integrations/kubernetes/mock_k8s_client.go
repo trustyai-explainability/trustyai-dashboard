@@ -169,95 +169,30 @@ func (m *MockKubernetesClient) CanAccessServiceInNamespace(ctx context.Context, 
 	return true, nil
 }
 
-func (m *MockKubernetesClient) CreateLMEval(ctx context.Context, identity *RequestIdentity, namespace string, lmEval *models.LMEvalKind) (*models.LMEvalKind, error) {
-	// Create a mock LMEval with some default values
-	createdLMEval := *lmEval
-	createdLMEval.Metadata.CreationTimestamp = time.Now()
-	createdLMEval.Status = &models.LMEvalStatus{
+func (m *MockKubernetesClient) CreateLMEvalJob(ctx context.Context, identity *RequestIdentity, namespace string, lmEvalJob *models.LMEvalJobKind) (*models.LMEvalJobKind, error) {
+	// Create a mock LMEvalJob with some default values
+	createdLMEvalJob := *lmEvalJob
+	createdLMEvalJob.Metadata.CreationTimestamp = time.Now()
+	createdLMEvalJob.Status = &models.LMEvalJobStatus{
 		State:   "Pending",
-		Message: "Mock evaluation created successfully",
+		Message: "Mock evaluation job created successfully",
 		Reason:  "EvaluationPending",
 	}
 
-	m.Logger.Info("Mock: Created LMEval",
-		"name", lmEval.Metadata.Name,
+	m.Logger.Info("Mock: Created LMEvalJob",
+		"name", lmEvalJob.Metadata.Name,
 		"namespace", namespace,
 		"user", identity.UserID)
 
-	return &createdLMEval, nil
+	return &createdLMEvalJob, nil
 }
 
-func (m *MockKubernetesClient) GetLMEval(ctx context.Context, identity *RequestIdentity, namespace, name string) (*models.LMEvalKind, error) {
-	// Define all mock evaluations with results
-	allMockItems := map[string]models.LMEvalKind{
-		"llama-eval-completed": {
-			APIVersion: "trustyai.opendatahub.io/v1alpha1",
-			Kind:       "LMEval",
-			Metadata: models.LMEvalMetadata{
-				Name:              "llama-eval-completed",
-				Namespace:         "project-1",
-				CreationTimestamp: time.Now().Add(-2 * time.Hour),
-				Annotations: map[string]string{
-					"opendatahub.io/display-name": "Llama Model Evaluation - Completed",
-				},
-			},
-			Spec: models.LMEvalSpec{
-				Model: "llama2-7b-chat",
-				TaskList: models.LMEvalTaskList{
-					TaskNames: []string{"hellaswag", "arc_easy"},
-				},
-				AllowCodeExecution: false,
-				AllowOnline:        true,
-				BatchSize:          "8",
-			},
-			Status: &models.LMEvalStatus{
-				State:   "Complete",
-				Message: "Evaluation completed successfully",
-				Results: `{"results":{"hellaswag":{"acc,none":0.85,"acc_norm,none":0.75},"arc_easy":{"acc,none":0.82,"acc_norm,none":0.80}}}`,
-			},
-		},
-		"eval-1": {
-			APIVersion: "trustyai.opendatahub.io/v1alpha1",
-			Kind:       "LMEval",
-			Metadata: models.LMEvalMetadata{
-				Name:              "eval-1",
-				Namespace:         "ds-project-3",
-				CreationTimestamp: time.Now().Add(-2 * time.Hour),
-				Annotations: map[string]string{
-					"opendatahub.io/display-name": "Evaluation 1",
-				},
-			},
-			Spec: models.LMEvalSpec{
-				Model: "llama2-7b-chat",
-				TaskList: models.LMEvalTaskList{
-					TaskNames: []string{"hellaswag", "arc_easy"},
-				},
-				AllowCodeExecution: false,
-				AllowOnline:        true,
-				BatchSize:          "8",
-			},
-			Status: &models.LMEvalStatus{
-				State:   "Complete",
-				Message: "Evaluation completed successfully",
-				Results: `{"results":{"hellaswag":{"acc,none":0.87,"acc_norm,none":0.77},"arc_easy":{"acc,none":0.82,"acc_norm,none":0.80}}}`,
-			},
-		},
-	}
-
-	// Try to find the specific evaluation
-	if eval, exists := allMockItems[name]; exists && eval.Metadata.Namespace == namespace {
-		m.Logger.Info("Mock: Retrieved LMEval",
-			"name", name,
-			"namespace", namespace,
-			"user", identity.UserID)
-		return &eval, nil
-	}
-
-	// Fallback to generic mock if not found
-	mockLMEval := &models.LMEvalKind{
+func (m *MockKubernetesClient) GetLMEvalJob(ctx context.Context, identity *RequestIdentity, namespace, name string) (*models.LMEvalJobKind, error) {
+	// Return a simple mock LMEvalJob for now
+	mockLMEvalJob := &models.LMEvalJobKind{
 		APIVersion: "trustyai.opendatahub.io/v1alpha1",
-		Kind:       "LMEval",
-		Metadata: models.LMEvalMetadata{
+		Kind:       "LMEvalJob",
+		Metadata: models.LMEvalJobMetadata{
 			Name:              name,
 			Namespace:         namespace,
 			CreationTimestamp: time.Now().Add(-time.Hour),
@@ -265,29 +200,47 @@ func (m *MockKubernetesClient) GetLMEval(ctx context.Context, identity *RequestI
 				"opendatahub.io/display-name": name,
 			},
 		},
-		Spec: models.LMEvalSpec{
+		Spec: models.LMEvalJobSpec{
 			Model: "llama2-7b-chat",
-			TaskList: models.LMEvalTaskList{
+			TaskList: models.LMEvalJobTaskList{
 				TaskNames: []string{"hellaswag", "arc_easy"},
 			},
 			AllowCodeExecution: false,
 			AllowOnline:        true,
 			BatchSize:          "8",
-			LogSamples:         true,
 		},
-		Status: &models.LMEvalStatus{
+		Status: &models.LMEvalJobStatus{
 			State:   "Complete",
-			Message: "Mock evaluation completed successfully",
-			Reason:  "EvaluationComplete",
+			Message: "Mock evaluation job completed successfully",
+			Results: `{"results":{"hellaswag":{"acc,none":0.85,"acc_norm,none":0.75},"arc_easy":{"acc,none":0.82,"acc_norm,none":0.80}}}`,
 		},
 	}
 
-	m.Logger.Info("Mock: Retrieved LMEval (fallback)",
+	m.Logger.Info("Mock: Retrieved LMEvalJob",
 		"name", name,
 		"namespace", namespace,
 		"user", identity.UserID)
 
-	return mockLMEval, nil
+	return mockLMEvalJob, nil
+}
+
+func (m *MockKubernetesClient) ListLMEvalJobs(ctx context.Context, identity *RequestIdentity, namespace string) (*models.LMEvalJobList, error) {
+	// Return empty list for now
+	mockList := &models.LMEvalJobList{
+		APIVersion: "trustyai.opendatahub.io/v1alpha1",
+		Kind:       "LMEvalJobList",
+		Metadata: models.ListMetadata{
+			ResourceVersion: "1",
+		},
+		Items: []models.LMEvalJobKind{},
+	}
+
+	m.Logger.Info("Mock: Listed LMEvalJobs",
+		"namespace", namespace,
+		"user", identity.UserID,
+		"count", len(mockList.Items))
+
+	return mockList, nil
 }
 
 func (m *MockKubernetesClient) ListLMEvals(ctx context.Context, identity *RequestIdentity, namespace string) (*models.LMEvalList, error) {
@@ -421,6 +374,14 @@ func (m *MockKubernetesClient) ListLMEvals(ctx context.Context, identity *Reques
 		"user", identity.UserID)
 
 	return mockList, nil
+}
+
+func (m *MockKubernetesClient) DeleteLMEvalJob(ctx context.Context, identity *RequestIdentity, namespace, name string) error {
+	m.Logger.Info("Mock: Deleted LMEvalJob",
+		"name", name,
+		"namespace", namespace,
+		"user", identity.UserID)
+	return nil
 }
 
 func (m *MockKubernetesClient) DeleteLMEval(ctx context.Context, identity *RequestIdentity, namespace, name string) error {

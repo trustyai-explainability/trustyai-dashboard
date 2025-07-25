@@ -27,6 +27,7 @@ const useLMEvalResult = (
   const [data, setData] = React.useState<LMEvalKind | null>(null);
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState<Error | undefined>();
+  const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {
     if (!evaluationName || !namespace) {
@@ -55,10 +56,21 @@ const useLMEvalResult = (
       }
     };
 
+    // Initial fetch
     fetchData();
+
+    // Set up polling for status updates
+    // Poll every 3 seconds for evaluations that are not in a final state
+    intervalRef.current = setInterval(() => {
+      fetchData();
+    }, 3000);
 
     return () => {
       isMounted = false;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [evaluationName, namespace]);
 

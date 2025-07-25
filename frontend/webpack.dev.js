@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 const path = require('path');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
@@ -21,6 +24,29 @@ module.exports = merge(common('development'), {
     client: {
       overlay: true,
     },
+    // Proxy configuration for development
+    proxy: [
+      {
+        context: ['/api', '/healthcheck'],
+        target: process.env.BFF_URL || 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+        logLevel: 'debug',
+        // Force kubeflow-userid header for development
+        onProxyReq: (proxyReq, req, res) => {
+          // Remove any existing header first
+          proxyReq.removeHeader('kubeflow-userid');
+          // Use environment variable or fallback to default
+          const userId = process.env.DEV_USER_ID || 'test';
+          // Ensure userId is not undefined or empty
+          if (userId && userId.trim() !== '') {
+            proxyReq.setHeader('kubeflow-userid', userId);
+          } else {
+            proxyReq.setHeader('kubeflow-userid', 'pnaik');
+          }
+        },
+      },
+    ],
   },
   module: {
     rules: [

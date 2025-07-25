@@ -341,8 +341,8 @@ func (kc *SharedClientLogic) BearerToken() (string, error) {
 	return kc.Token.Raw(), nil
 }
 
-// LMEval CRUD operations
-func (kc *SharedClientLogic) CreateLMEval(ctx context.Context, identity *RequestIdentity, namespace string, lmEval *models.LMEvalKind) (*models.LMEvalKind, error) {
+// LMEvalJob CRUD operations
+func (kc *SharedClientLogic) CreateLMEvalJob(ctx context.Context, identity *RequestIdentity, namespace string, lmEvalJob *models.LMEvalJobKind) (*models.LMEvalJobKind, error) {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
@@ -366,20 +366,20 @@ func (kc *SharedClientLogic) CreateLMEval(ctx context.Context, identity *Request
 		return nil, fmt.Errorf("failed to create dynamic client: %w", err)
 	}
 
-	// Define the GVR for LMEval
+	// Define the GVR for LMEvalJob
 	gvr := schema.GroupVersionResource{
 		Group:    "trustyai.opendatahub.io",
 		Version:  "v1alpha1",
-		Resource: "lmevals",
+		Resource: "lmevaljobs",
 	}
 
-	// Validate the LMEval object before creation
-	if err := validateLMEval(lmEval); err != nil {
-		return nil, fmt.Errorf("invalid LMEval object: %w", err)
+	// Validate the LMEvalJob object before creation
+	if err := validateLMEvalJob(lmEvalJob); err != nil {
+		return nil, fmt.Errorf("invalid LMEvalJob object: %w", err)
 	}
 
 	// Convert to unstructured
-	unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(lmEval)
+	unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(lmEvalJob)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert to unstructured: %w", err)
 	}
@@ -389,49 +389,49 @@ func (kc *SharedClientLogic) CreateLMEval(ctx context.Context, identity *Request
 	if err != nil {
 		// Provide more detailed error information
 		if strings.Contains(err.Error(), "no matches for kind") {
-			return nil, fmt.Errorf("LMEval CRD not found - ensure TrustyAI operator is installed: %w", err)
+			return nil, fmt.Errorf("LMEvalJob CRD not found - ensure TrustyAI operator is installed: %w", err)
 		}
 		if strings.Contains(err.Error(), "forbidden") {
-			return nil, fmt.Errorf("insufficient permissions to create LMEval in namespace %s: %w", namespace, err)
+			return nil, fmt.Errorf("insufficient permissions to create LMEvalJob in namespace %s: %w", namespace, err)
 		}
-		return nil, fmt.Errorf("failed to create LMEval: %w", err)
+		return nil, fmt.Errorf("failed to create LMEvalJob: %w", err)
 	}
 
-	// Convert back to LMEvalKind
-	var createdLMEval models.LMEvalKind
-	err = runtime.DefaultUnstructuredConverter.FromUnstructured(result.UnstructuredContent(), &createdLMEval)
+	// Convert back to LMEvalJobKind
+	var createdLMEvalJob models.LMEvalJobKind
+	err = runtime.DefaultUnstructuredConverter.FromUnstructured(result.UnstructuredContent(), &createdLMEvalJob)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert created resource from unstructured: %w", err)
 	}
 
-	return &createdLMEval, nil
+	return &createdLMEvalJob, nil
 }
 
-// validateLMEval validates the LMEval object before creation
-func validateLMEval(lmEval *models.LMEvalKind) error {
-	if lmEval == nil {
-		return fmt.Errorf("LMEval object cannot be nil")
+// validateLMEvalJob validates the LMEvalJob object before creation
+func validateLMEvalJob(lmEvalJob *models.LMEvalJobKind) error {
+	if lmEvalJob == nil {
+		return fmt.Errorf("LMEvalJob object cannot be nil")
 	}
 
-	if lmEval.Metadata.Name == "" {
-		return fmt.Errorf("LMEval name is required")
+	if lmEvalJob.Metadata.Name == "" {
+		return fmt.Errorf("LMEvalJob name is required")
 	}
 
-	if lmEval.Metadata.Namespace == "" {
-		return fmt.Errorf("LMEval namespace is required")
+	if lmEvalJob.Metadata.Namespace == "" {
+		return fmt.Errorf("LMEvalJob namespace is required")
 	}
 
-	if lmEval.Spec.Model == "" {
-		return fmt.Errorf("LMEval model is required")
+	if lmEvalJob.Spec.Model == "" {
+		return fmt.Errorf("LMEvalJob model is required")
 	}
 
-	if len(lmEval.Spec.TaskList.TaskNames) == 0 {
-		return fmt.Errorf("LMEval must have at least one task")
+	if len(lmEvalJob.Spec.TaskList.TaskNames) == 0 {
+		return fmt.Errorf("LMEvalJob must have at least one task")
 	}
 
 	// Validate Kubernetes name format
-	if !isValidKubernetesName(lmEval.Metadata.Name) {
-		return fmt.Errorf("LMEval name must be a valid Kubernetes resource name")
+	if !isValidKubernetesName(lmEvalJob.Metadata.Name) {
+		return fmt.Errorf("LMEvalJob name must be a valid Kubernetes resource name")
 	}
 
 	return nil
@@ -458,7 +458,7 @@ func isValidKubernetesName(name string) bool {
 	return true
 }
 
-func (kc *SharedClientLogic) GetLMEval(ctx context.Context, identity *RequestIdentity, namespace, name string) (*models.LMEvalKind, error) {
+func (kc *SharedClientLogic) GetLMEvalJob(ctx context.Context, identity *RequestIdentity, namespace, name string) (*models.LMEvalJobKind, error) {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
@@ -474,30 +474,30 @@ func (kc *SharedClientLogic) GetLMEval(ctx context.Context, identity *RequestIde
 		return nil, fmt.Errorf("failed to create dynamic client: %w", err)
 	}
 
-	// Define the GVR for LMEval
+	// Define the GVR for LMEvalJob
 	gvr := schema.GroupVersionResource{
 		Group:    "trustyai.opendatahub.io",
 		Version:  "v1alpha1",
-		Resource: "lmevals",
+		Resource: "lmevaljobs",
 	}
 
 	// Get the resource
 	result, err := dynamicClient.Resource(gvr).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get LMEval: %w", err)
+		return nil, fmt.Errorf("failed to get LMEvalJob: %w", err)
 	}
 
-	// Convert to LMEvalKind
-	var lmEval models.LMEvalKind
-	err = runtime.DefaultUnstructuredConverter.FromUnstructured(result.UnstructuredContent(), &lmEval)
+	// Convert to LMEvalJobKind
+	var lmEvalJob models.LMEvalJobKind
+	err = runtime.DefaultUnstructuredConverter.FromUnstructured(result.UnstructuredContent(), &lmEvalJob)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert from unstructured: %w", err)
 	}
 
-	return &lmEval, nil
+	return &lmEvalJob, nil
 }
 
-func (kc *SharedClientLogic) ListLMEvals(ctx context.Context, identity *RequestIdentity, namespace string) (*models.LMEvalList, error) {
+func (kc *SharedClientLogic) ListLMEvalJobs(ctx context.Context, identity *RequestIdentity, namespace string) (*models.LMEvalJobList, error) {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
@@ -513,11 +513,11 @@ func (kc *SharedClientLogic) ListLMEvals(ctx context.Context, identity *RequestI
 		return nil, fmt.Errorf("failed to create dynamic client: %w", err)
 	}
 
-	// Define the GVR for LMEval
+	// Define the GVR for LMEvalJob
 	gvr := schema.GroupVersionResource{
 		Group:    "trustyai.opendatahub.io",
 		Version:  "v1alpha1",
-		Resource: "lmevals",
+		Resource: "lmevaljobs",
 	}
 
 	// List the resources
@@ -526,20 +526,20 @@ func (kc *SharedClientLogic) ListLMEvals(ctx context.Context, identity *RequestI
 		// List across all namespaces
 		result, err := dynamicClient.Resource(gvr).List(ctx, listOptions)
 		if err != nil {
-			return nil, fmt.Errorf("failed to list LMEvals: %w", err)
+			return nil, fmt.Errorf("failed to list LMEvalJobs: %w", err)
 		}
-		return convertUnstructuredListToLMEvalList(result)
+		return convertUnstructuredListToLMEvalJobList(result)
 	} else {
 		// List in specific namespace
 		result, err := dynamicClient.Resource(gvr).Namespace(namespace).List(ctx, listOptions)
 		if err != nil {
-			return nil, fmt.Errorf("failed to list LMEvals in namespace %s: %w", namespace, err)
+			return nil, fmt.Errorf("failed to list LMEvalJobs in namespace %s: %w", namespace, err)
 		}
-		return convertUnstructuredListToLMEvalList(result)
+		return convertUnstructuredListToLMEvalJobList(result)
 	}
 }
 
-func (kc *SharedClientLogic) DeleteLMEval(ctx context.Context, identity *RequestIdentity, namespace, name string) error {
+func (kc *SharedClientLogic) DeleteLMEvalJob(ctx context.Context, identity *RequestIdentity, namespace, name string) error {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
@@ -555,41 +555,41 @@ func (kc *SharedClientLogic) DeleteLMEval(ctx context.Context, identity *Request
 		return fmt.Errorf("failed to create dynamic client: %w", err)
 	}
 
-	// Define the GVR for LMEval
+	// Define the GVR for LMEvalJob
 	gvr := schema.GroupVersionResource{
 		Group:    "trustyai.opendatahub.io",
 		Version:  "v1alpha1",
-		Resource: "lmevals",
+		Resource: "lmevaljobs",
 	}
 
 	// Delete the resource
 	err = dynamicClient.Resource(gvr).Namespace(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 	if err != nil {
-		return fmt.Errorf("failed to delete LMEval: %w", err)
+		return fmt.Errorf("failed to delete LMEvalJob: %w", err)
 	}
 
 	return nil
 }
 
-// Helper function to convert unstructured list to LMEvalList
-func convertUnstructuredListToLMEvalList(unstructuredList *unstructured.UnstructuredList) (*models.LMEvalList, error) {
-	var lmEvalList models.LMEvalList
+// Helper function to convert unstructured list to LMEvalJobList
+func convertUnstructuredListToLMEvalJobList(unstructuredList *unstructured.UnstructuredList) (*models.LMEvalJobList, error) {
+	var lmEvalJobList models.LMEvalJobList
 
 	// Set metadata
-	lmEvalList.APIVersion = unstructuredList.GetAPIVersion()
-	lmEvalList.Kind = unstructuredList.GetKind()
-	lmEvalList.Metadata.ResourceVersion = unstructuredList.GetResourceVersion()
+	lmEvalJobList.APIVersion = unstructuredList.GetAPIVersion()
+	lmEvalJobList.Kind = unstructuredList.GetKind()
+	lmEvalJobList.Metadata.ResourceVersion = unstructuredList.GetResourceVersion()
 
 	// Convert items
 	for _, item := range unstructuredList.Items {
-		var lmEval models.LMEvalKind
-		err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.UnstructuredContent(), &lmEval)
+		var lmEvalJob models.LMEvalJobKind
+		err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.UnstructuredContent(), &lmEvalJob)
 		if err != nil {
 			// Log error but continue with other items
 			continue
 		}
-		lmEvalList.Items = append(lmEvalList.Items, lmEval)
+		lmEvalJobList.Items = append(lmEvalJobList.Items, lmEvalJob)
 	}
 
-	return &lmEvalList, nil
+	return &lmEvalJobList, nil
 }
