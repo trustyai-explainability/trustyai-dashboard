@@ -28,7 +28,9 @@ export const isModuleFederationMode = (): boolean =>
 
 // Default development configuration
 const developmentConfig: EnvironmentConfig = {
-  apiBaseUrl: '/api/v1', // Use proxy in development
+  apiBaseUrl: isModuleFederationMode()
+    ? 'http://localhost:8080/api/v1' // Direct BFF URL when in module federation
+    : '/api/v1', // Use proxy when standalone
   bffUrl: process.env.BFF_URL || 'http://localhost:8080',
   devUserId: process.env.DEV_USER_ID || 'dev-user@example.com',
   authMethod: 'mock',
@@ -41,9 +43,7 @@ const developmentConfig: EnvironmentConfig = {
 
 // Production configuration
 const productionConfig: EnvironmentConfig = {
-  apiBaseUrl: isModuleFederationMode()
-    ? 'http://localhost:8080/api/v1' // Direct BFF URL when in module federation
-    : '/api/v1', // Use proxy when standalone
+  apiBaseUrl: '/api/v1', // Use relative path in production (served by BFF)
   bffUrl: '/api/v1',
   devUserId: '',
   authMethod: 'oauth_proxy', // Use OAuth proxy in production
