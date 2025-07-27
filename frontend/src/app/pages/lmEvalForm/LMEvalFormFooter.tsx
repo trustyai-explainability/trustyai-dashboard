@@ -54,10 +54,10 @@ const LMEvalFormFooter: React.FC<LMEvalFormFooterProps> = ({ data, k8sNameData }
       };
 
       // Create the evaluation using our API
-      const createdEvaluation = await LMEvalService.createEvaluation(namespace, createRequest);
+      await LMEvalService.createEvaluation(namespace, createRequest);
 
-      // Navigate to the evaluation results page
-      navigate(`/model-evaluations/${namespace}/evaluations/${createdEvaluation.metadata.name}`, {
+      // Navigate to the model evaluations list page
+      navigate(`/model-evaluations/${namespace}`, {
         state: {
           message: `Evaluation "${data.evaluationName}" created successfully and is starting.`,
           type: 'success',
