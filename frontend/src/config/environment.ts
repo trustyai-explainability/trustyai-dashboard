@@ -18,6 +18,14 @@ export interface EnvironmentConfig {
   enableDebugLogging: boolean;
 }
 
+// Helper function to detect if running in module federation mode
+export const isModuleFederationMode = (): boolean =>
+  // Check if we're running in a module federation context
+  // This can be detected by checking if we're loaded by the ODH dashboard
+  typeof window !== 'undefined' &&
+  window.location.hostname === 'localhost' &&
+  window.location.port === '4010';
+
 // Default development configuration
 const developmentConfig: EnvironmentConfig = {
   apiBaseUrl: '/api/v1', // Use proxy in development
@@ -33,7 +41,9 @@ const developmentConfig: EnvironmentConfig = {
 
 // Production configuration
 const productionConfig: EnvironmentConfig = {
-  apiBaseUrl: '/api/v1', // Use relative path in production (served by BFF)
+  apiBaseUrl: isModuleFederationMode()
+    ? 'http://localhost:8080/api/v1' // Direct BFF URL when in module federation
+    : '/api/v1', // Use proxy when standalone
   bffUrl: '/api/v1',
   devUserId: '',
   authMethod: 'oauth_proxy', // Use OAuth proxy in production
