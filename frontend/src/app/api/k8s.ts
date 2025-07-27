@@ -1,7 +1,31 @@
-import { LMEvalKind } from '~/app/types';
-import { getApiBaseUrl } from '~/config/environment';
+import { getApiBaseUrl, getDevUserId, isModuleFederationMode } from '~/config/environment';
 
-// Define missing types that match the backend models
+export interface LMEvalKind {
+  apiVersion: string;
+  kind: string;
+  metadata: {
+    name: string;
+    namespace: string;
+    annotations?: Record<string, string>;
+    creationTimestamp?: string;
+  };
+  spec: {
+    model: string;
+    taskList: {
+      taskNames: string[];
+    };
+    allowCodeExecution?: boolean;
+    allowOnline?: boolean;
+    batchSize?: string;
+    logSamples?: boolean;
+  };
+  status?: {
+    state?: string;
+    message?: string;
+    results?: string;
+  };
+}
+
 export interface LMEvalList {
   apiVersion: string;
   kind: string;
@@ -31,10 +55,23 @@ export interface LMEvalCreateRequest {
 const API_BASE = getApiBaseUrl();
 
 // Default headers for kubeflow authentication
-const getDefaultHeaders = (): Record<string, string> => ({
-  'Content-Type': 'application/json',
-  // Headers are injected by proxy in development or OAuth proxy in production
-});
+const getDefaultHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Add kubeflow-userid header for authentication
+  // In module federation mode, we need to add this header manually
+  // In standalone mode, the webpack proxy adds it automatically
+  if (isModuleFederationMode()) {
+    const userId = getDevUserId();
+    if (userId) {
+      headers['kubeflow-userid'] = userId;
+    }
+  }
+
+  return headers;
+};
 
 // Generic API client for making requests
 class ApiClient {
