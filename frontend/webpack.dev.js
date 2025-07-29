@@ -37,12 +37,12 @@ module.exports = merge(common('development'), {
           // Remove any existing header first
           proxyReq.removeHeader('kubeflow-userid');
           // Use environment variable or fallback to default
-          const userId = process.env.DEV_USER_ID || 'test';
+          const userId = process.env.DEV_USER_ID || 'dev-user@example.com';
           // Ensure userId is not undefined or empty
           if (userId && userId.trim() !== '') {
             proxyReq.setHeader('kubeflow-userid', userId);
           } else {
-            proxyReq.setHeader('kubeflow-userid', 'pnaik');
+            proxyReq.setHeader('kubeflow-userid', 'dev-user@example.com');
           }
         },
       },

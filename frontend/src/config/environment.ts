@@ -45,7 +45,7 @@ const developmentConfig: EnvironmentConfig = {
 const productionConfig: EnvironmentConfig = {
   apiBaseUrl: '/api/v1', // Use relative path in production (served by BFF)
   bffUrl: '/api/v1',
-  devUserId: '',
+  devUserId: '', // No dev user ID in production
   authMethod: 'oauth_proxy', // Use OAuth proxy in production
   isDevelopment: false,
   isProduction: true,
