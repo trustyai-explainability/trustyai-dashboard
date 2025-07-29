@@ -14,6 +14,8 @@
     "start:dev:mock": "BFF_URL=http://localhost:8080 webpack serve --color --progress --config webpack.dev.js",
     "start:dev:real": "BFF_URL=http://localhost:8080 webpack serve --color --progress --config webpack.dev.js",
     "start:prod": "NODE_ENV=production webpack serve --color --progress --config webpack.prod.js",
+    "build:prod": "./scripts/build-prod.sh",
+    "deploy:prod": "npm run build:prod && echo 'Frontend built successfully. Copy dist/ to BFF static/ directory.'",
     "test": "run-s test:lint test:type-check test:unit test:cypress-ci",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
