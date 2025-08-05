@@ -115,7 +115,7 @@
     "@patternfly/react-tokens": "^6.2.2",
     "lodash-es": "^4.17.21",
     "mod-arch-shared": "^0.1.7",
-    "react": "^18",
+    "react": "^19",
     "react-dom": "^18",
     "sirv-cli": "^3.0.0"
   },
