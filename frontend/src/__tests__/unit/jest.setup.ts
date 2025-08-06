@@ -1,6 +1,7 @@
 import { TextEncoder } from 'util';
 import { JestAssertionError } from 'expect';
 import 'core-js/actual/array/to-sorted';
+import '@testing-library/jest-dom';
 import { BooleanValues, RenderHookResultExt, createComparativeValue } from './testUtils/hooks';
 
 // Polyfill fetch for Jest environment
